@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel Admin - Desafío Dunas</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 900px; margin: auto; }
+    section { margin-bottom: 30px; border: 1px solid #ccc; padding: 15px; }
+    input, button, select { margin: 5px 0; padding: 8px; width: 100%; }
+    textarea { width: 100%; height: 80px; margin-top: 5px; }
+    h2 { margin-top: 0; }
+  </style>
+</head>
+<body>
+  <h1>🛠️ Panel de Administración - Desafío Dunas</h1>
+
+  <section>
+    <h2>1. Registro de Usuarios Administradores</h2>
+    <input id="admin-nombre" placeholder="Nombre completo">
+    <input id="admin-email" type="email" placeholder="Email">
+    <input id="admin-pass" type="password" placeholder="Contraseña">
+    <button onclick="registrarAdmin()">Registrar</button>
+    <pre id="admin-out"></pre>
+  </section>
+
+  <section>
+    <h2>2. Gestión de Frecuencias</h2>
+    <input id="frec-grupo" placeholder="Nombre del grupo">
+    <input id="frec-frecuencia" type="number" placeholder="Frecuencia MHz">
+    <input id="frec-contacto" placeholder="Contacto">
+    <input id="frec-email" placeholder="Email">
+    <input id="frec-telefono" placeholder="Teléfono">
+    <button onclick="crearFrecuencia()">Agregar Frecuencia</button>
+    <textarea id="frecuencia-json" placeholder="Pega aquí JSON con _id para editar/eliminar"></textarea>
+    <button onclick="editarFrecuencia()">Editar</button>
+    <button onclick="eliminarFrecuencia()">Eliminar</button>
+    <pre id="frecuencia-out"></pre>
+  </section>
+
+  <section>
+    <h2>3. Inscripciones al Evento</h2>
+    <input id="ins-nombres" placeholder="Nombres">
+    <input id="ins-apellidos" placeholder="Apellidos">
+    <input id="ins-email" placeholder="Email">
+    <input id="ins-telefono" placeholder="Teléfono">
+    <input id="ins-dni" placeholder="DNI">
+    <select id="ins-tipo"><option>PILOTO</option><option>COPILOTO</option></select>
+    <button onclick="registrarInscripcion()">Registrar Participante</button>
+    <pre id="inscripcion-out"></pre>
+  </section>
+
+  <script>
+    const token = localStorage.getItem('adminToken') || '';
+
+    function registrarAdmin() {
+      fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: document.getElementById('admin-nombre').value,
+          email: document.getElementById('admin-email').value,
+          password: document.getElementById('admin-pass').value
+        })
+      })
+      .then(r => r.json())
+      .then(d => document.getElementById('admin-out').innerText = JSON.stringify(d, null, 2));
+    }
+
+    function crearFrecuencia() {
+      fetch('/api/frecuencias', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+          grupo: document.getElementById('frec-grupo').value,
+          frecuencia: document.getElementById('frec-frecuencia').value,
+          contacto: document.getElementById('frec-contacto').value,
+          email: document.getElementById('frec-email').value,
+          telefono: document.getElementById('frec-telefono').value
+        })
+      })
+      .then(r => r.json())
+      .then(d => document.getElementById('frecuencia-out').innerText = JSON.stringify(d, null, 2));
+    }
+
+    function editarFrecuencia() {
+      const data = JSON.parse(document.getElementById('frecuencia-json').value);
+      fetch('/api/frecuencias/' + data._id, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify(data)
+      })
+      .then(r => r.json())
+      .then(d => document.getElementById('frecuencia-out').innerText = JSON.stringify(d, null, 2));
+    }
+
+    function eliminarFrecuencia() {
+      const data = JSON.parse(document.getElementById('frecuencia-json').value);
+      fetch('/api/frecuencias/' + data._id, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Bearer ' + token
+        }
+      })
+      .then(r => r.text())
+      .then(d => document.getElementById('frecuencia-out').innerText = 'Eliminado: ' + data._id);
+    }
+
+    function registrarInscripcion() {
+      fetch('/api/inscripciones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombres: document.getElementById('ins-nombres').value,
+          apellidos: document.getElementById('ins-apellidos').value,
+          email: document.getElementById('ins-email').value,
+          celular: document.getElementById('ins-telefono').value,
+          dni: document.getElementById('ins-dni').value,
+          tipoInscripcion: document.getElementById('ins-tipo').value
+        })
+      })
+      .then(r => r.json())
+      .then(d => document.getElementById('inscripcion-out').innerText = JSON.stringify(d, null, 2));
+    }
+  </script>
+</body>
+</html>

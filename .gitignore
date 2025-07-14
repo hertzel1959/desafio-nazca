@@ -1,0 +1,452 @@
+# ===========================================
+# DESAFÍO DUNAS DE NAZCA - .gitignore
+# ===========================================
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage
+.grunt
+
+# Bower dependency directory
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons
+build/Release
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Snowpack dependency directory
+web_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# parcel-bundler cache
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# Editor directories and files
+.vscode/
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS generated files
+Thumbs.db
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Uploads directory (contains user uploaded files)
+uploads/
+public/uploads/
+
+# Build directories
+build/
+dist/
+out/
+
+# Minified files
+*.min.js
+*.min.css
+public/css/*.min.css
+public/js/*.min.js
+public/js/bundle.js
+
+# MongoDB database files
+data/
+*.db
+
+# Redis dump files
+dump.rdb
+
+# Backup files
+backup/
+*.backup
+*.bak
+
+# SSL certificates
+ssl/
+*.pem
+*.key
+*.crt
+*.csr
+
+# PM2 files
+.pm2/
+ecosystem.config.js
+
+# Docker files
+docker-compose.override.yml
+.docker/
+
+# Terraform files
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Local configuration files
+config/local.js
+config/local.json
+
+# Test coverage
+coverage/
+.coverage/
+
+# Jest
+jest.config.local.js
+
+# ESLint
+.eslintcache
+
+# Prettier
+.prettierignore
+
+# Webpack
+webpack-stats.json
+
+# Bundle analyzer
+bundle-analyzer-report.html
+
+# Lock files (mantener solo uno)
+package-lock.json
+yarn.lock
+
+# Sitemap
+sitemap.xml
+robots.txt
+
+# Error reports
+error.log
+access.log
+
+# Development database
+*.sqlite
+*.sqlite3
+
+# User secrets
+secrets/
+*.secret
+
+# Analytics and tracking
+google-analytics.json
+facebook-pixel.json
+
+# Email templates compiled
+email-templates-compiled/
+
+# Documentation build
+docs/build/
+docs/_site/
+
+# Deployment files
+deploy.sh
+deploy.yml
+
+# Local environment
+.env.local
+.env.*.local
+
+# IDE specific files
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Temporary files
+*.tmp
+*.temp
+
+# Application specific
+sessions/
+logs/
+monitoring/
+metrics/
+
+# CDN and static assets cache
+.cache/
+static/cache/
+
+# Performance monitoring
+newrelic.js
+newrelic_agent.log
+
+# Security scanning results
+security-scan-results.json
+vulnerability-report.html
+
+# Load testing results
+load-test-results/
+
+# Mobile app builds (if future mobile app)
+platforms/
+plugins/
+www/build/
+
+# Cordova/PhoneGap
+platforms/
+plugins/
+www/
+
+# React Native
+.expo/
+.expo-shared/
+
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+
+# Android
+*.apk
+*.aab
+android/
+ios/
+
+# Game assets (if gamification features)
+assets/sounds/
+assets/videos/
+assets/models/
+
+# Email queue files
+email-queue/
+
+# SMS queue files
+sms-queue/
+
+# Notification files
+push-notifications/
+
+# Cron job logs
+cron.log
+
+# Monitoring and alerting
+alerts/
+monitoring-config/
+
+# Third-party integrations
+integrations/config/
+
+# Payment gateway test files
+payment-test-data/
+
+# Social media API cache
+social-cache/
+
+# Maps and GPS data cache
+maps-cache/
+gps-data/
+
+# Event photos and media (large files)
+event-media/
+participant-photos/
+
+# Generated thumbnails
+thumbnails/
+resized-images/
+
+# Backup database dumps
+*.sql
+*.dump
+
+# Configuration overrides
+config.override.js
+config.local.js
+
+# Feature flags
+feature-flags.json
+
+# A/B testing configurations
+ab-test-config.json
+
+# Maintenance mode files
+maintenance.html
+maintenance.json
+
+# Health check endpoints cache
+health-check-cache/
+
+# Rate limiting cache
+rate-limit-cache/
+
+# Session storage
+sessions/
+
+# WebSocket logs
+websocket.log
+
+# Real-time event logs
+realtime-events.log
+
+# Performance profiling
+profiling/
+*.prof
+
+# Memory dumps
+*.heapsnapshot
+
+# Core dumps
+core.*
+
+# Kubernetes configs (sensitive)
+k8s-secrets/
+kubernetes-config/
+
+# Helm charts values (sensitive)
+helm-values.yaml
+values-production.yaml
+
+# Ansible vault files
+vault.yml
+.vault_pass
+
+# Chef cookbooks
+cookbooks/
+.chef/
+
+# Vagrant
+.vagrant/
+Vagrantfile.local
+
+# Packer
+packer_cache/
+*.box
+
+# Local development scripts
+dev-scripts/
+local-scripts/
+
+# Documentation assets
+docs/assets/videos/
+docs/assets/large-images/
+
+# Translation files (if multilingual)
+locales/cache/
+translation-cache/
+
+# SEO files
+sitemap-*.xml
+robots-*.txt
+
+# Analytics exports
+analytics-exports/
+reports-exports/
+
+# Compliance and audit files
+audit-logs/
+compliance-reports/
+
+# Incident response files
+incident-reports/
+post-mortem/
+
+# Business intelligence exports
+bi-exports/
+dashboard-exports/
