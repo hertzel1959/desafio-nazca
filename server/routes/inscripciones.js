@@ -81,7 +81,7 @@ router.post('/enviar-codigo', async (req, res) => {
         const { email, datosInscripcion } = req.body;
 
         // 🔥 Generar SOLO AQUÍ el código
-        const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+        const codigo = Math.floor(100000 + Math.random() * 900000).toString(); // ✅ DESCOMENTA ESTA LÍNEA
 
         // Guardar para luego verificar
         global.codigosVerificacion.set(email, {
