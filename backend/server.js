@@ -1,4 +1,4 @@
-// server.js - MongoDB Atlas + Rutas Corregidas para Render
+// server.js - MongoDB Atlas con los 49 GRUPOS COMPLETOS
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -11,18 +11,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ CORREGIDO: Servir archivos estáticos desde la raíz (donde están index.html y admin.html)
+// ✅ CORREGIDO: Servir archivos estáticos desde public/
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// ===============================
-// ESQUEMAS MONGODB
-// ===============================
-
-// Esquema de Frecuencias
+// Esquemas MongoDB
 const frequencySchema = new mongoose.Schema({
     id: { type: Number, required: true, unique: true },
     grupo: { type: String, required: true },
-    frecuencia: { type: Number, required: true }, // Cambio: era 'frecuencias'
+    frecuencia: { type: Number, required: true },
     contacto: { type: String, default: '' },
     email: { type: String, default: '' },
     telefono: { type: String, default: '' },
@@ -30,9 +26,6 @@ const frequencySchema = new mongoose.Schema({
     fechaCreacion: { type: Date, default: Date.now }
 });
 
-const Frequency = mongoose.model('Frequency', frequencySchema);
-
-// Esquema de Inscripciones (adaptado al frontend)
 const inscripcionSchema = new mongoose.Schema({
     NRO: { type: Number, unique: true },
     N_equipo: { type: Number, required: true },
@@ -41,8 +34,6 @@ const inscripcionSchema = new mongoose.Schema({
         required: true,
         enum: ['piloto', 'copiloto', 'acompañante1', 'acompañante2', 'acompañante3']
     },
-    
-    // Datos personales
     nombres: { type: String, required: true },
     apellidos: { type: String, required: true },
     nombreCompleto: { type: String },
@@ -68,8 +59,6 @@ const inscripcionSchema = new mongoose.Schema({
             message: 'DNI debe tener 8 dígitos'
         }
     },
-    
-    // Contacto
     email: { 
         type: String, 
         required: true,
@@ -83,13 +72,9 @@ const inscripcionSchema = new mongoose.Schema({
     celular: { type: String, required: true },
     personaContacto: { type: String, required: true },
     celularContacto: { type: String, required: true },
-    
-    // Grupo/Frecuencia
     grupo: { type: String, required: true },
     frecuencia: { type: Number },
     liderGrupo: { type: String },
-    
-    // Vehículo
     tipoVehiculo: {
         type: String,
         required: true,
@@ -99,8 +84,6 @@ const inscripcionSchema = new mongoose.Schema({
     modelo: { type: String, required: true },
     año: { type: Number, required: true, min: 1990, max: 2026 },
     vehiculoCompleto: { type: String },
-    
-    // Evento
     diaLlegada: {
         type: String,
         required: true,
@@ -112,8 +95,6 @@ const inscripcionSchema = new mongoose.Schema({
         default: 'PENDIENTE' 
     },
     observaciones: { type: String, default: '' },
-    
-    // Metadata
     fechaRegistro: { type: Date, default: Date.now }
 });
 
@@ -125,31 +106,22 @@ inscripcionSchema.pre('save', function(next) {
     if (this.marca && this.modelo && this.año) {
         this.vehiculoCompleto = `${this.marca} ${this.modelo} ${this.año}`;
     }
-    if (!this.NRO) {
-        // Auto-increment NRO
-        this.constructor.countDocuments({}).then(count => {
-            this.NRO = count + 1;
-            next();
-        });
-    } else {
-        next();
-    }
+    next();
 });
 
-const Inscripcion = mongoose.model('Inscripcion', inscripcionSchema);
-
-// Esquema para códigos de verificación
 const codigoSchema = new mongoose.Schema({
     email: { type: String, required: true },
     codigo: { type: String, required: true },
     datosInscripcion: { type: Object, required: true },
-    fechaCreacion: { type: Date, default: Date.now, expires: 600 } // Expira en 10 minutos
+    fechaCreacion: { type: Date, default: Date.now, expires: 600 }
 });
 
+const Frequency = mongoose.model('Frequency', frequencySchema);
+const Inscripcion = mongoose.model('Inscripcion', inscripcionSchema);
 const CodigoVerificacion = mongoose.model('CodigoVerificacion', codigoSchema);
 
 // ===============================
-// DATOS INICIALES DE FRECUENCIAS
+// 🏁 LOS 49 GRUPOS COMPLETOS DEL EXCEL
 // ===============================
 
 const frequenciesData = [
@@ -162,8 +134,46 @@ const frequenciesData = [
     { id: 7, grupo: "INKA CAR", frecuencia: 147.99, contacto: "Se ira migrando de a pocos", email: "", telefono: "" },
     { id: 8, grupo: "Chancheros 4x4", frecuencia: 148, contacto: "Italo Lezcano", email: "angelveldy@gmail.com", telefono: "994011186" },
     { id: 9, grupo: "Xtreme Makari", frecuencia: 148, contacto: "Luis Díaz", email: "kaidiaz2009@gmail.com", telefono: "997365305" },
-    { id: 10, grupo: "Doble Tracción", frecuencia: 148.02, contacto: "Ciro Zúñiga", email: "ciro@dobletraccion.pe", telefono: "949713700" }
-    // Agregar más grupos según sea necesario
+    { id: 10, grupo: "Doble Tracción", frecuencia: 148.02, contacto: "Ciro Zúñiga", email: "ciro@dobletraccion.pe", telefono: "949713700" },
+    { id: 11, grupo: "Cheleros Off Road", frecuencia: 148.05, contacto: "Toño Celis", email: "", telefono: "" },
+    { id: 12, grupo: "Muy Muy", frecuencia: 148.08, contacto: "Beto Morales", email: "betomorales@gmail.com", telefono: "977531934" },
+    { id: 13, grupo: "FJ Cruiser", frecuencia: 148.09, contacto: "Ivan Takahashi", email: "ivantakahashi@gmail.com", telefono: "989591832" },
+    { id: 14, grupo: "Lima Off Road", frecuencia: 148.2, contacto: "José Bazán", email: "josebazant@hotmail.com", telefono: "981224640" },
+    { id: 15, grupo: "Intrépidos 4x4", frecuencia: 148.25, contacto: "Jorge Ojeda", email: "contacto@intrepidos4x4.pe", telefono: "998671071" },
+    { id: 16, grupo: "Alacranes 4x4", frecuencia: 148.28, contacto: "Ricardo Rebaza", email: "rrebazab@gmail.com", telefono: "941965570" },
+    { id: 17, grupo: "Subaru Forester Perú", frecuencia: 148.35, contacto: "Dante Vasquez", email: "dante.vasquez@siemens.com", telefono: "997588577" },
+    { id: 18, grupo: "Vuelteros 4x4", frecuencia: 148.42, contacto: "Audrey Balarín", email: "audrey.balarin@gmail.com", telefono: "958888298" },
+    { id: 19, grupo: "Los Mejores 40", frecuencia: 148.44, contacto: "", email: "", telefono: "" },
+    { id: 20, grupo: "Mickey Thompson", frecuencia: 148.5, contacto: "Diego Navea", email: "gerencia@mtperu.net", telefono: "998114074" },
+    { id: 21, grupo: "INKA CAR 2", frecuencia: 148.53, contacto: "Valentina", email: "", telefono: "" },
+    { id: 22, grupo: "Dunitas", frecuencia: 148.58, contacto: "", email: "", telefono: "" },
+    { id: 23, grupo: "Lobos de Arena", frecuencia: 148.65, contacto: "Peter Pacheco", email: "alexpach@hotmail.com", telefono: "967248653" },
+    { id: 24, grupo: "Decadentes Moto/Quad/UTV", frecuencia: 148.68, contacto: "", email: "", telefono: "" },
+    { id: 25, grupo: "Club Vehículos Todo Terreno", frecuencia: 148.74, contacto: "Jaime Alvariño Garland", email: "jalvarino@sectech.pe", telefono: "990765597" },
+    { id: 26, grupo: "Torque 4x4", frecuencia: 148.78, contacto: "Helmo Rodas", email: "helmo4@hotmail.com", telefono: "987205927" },
+    { id: 27, grupo: "Cazadunas", frecuencia: 148.88, contacto: "Fico Salmón", email: "ficosalm@hotmail.com", telefono: "999448838" },
+    { id: 28, grupo: "Sonaja 4x4", frecuencia: 148.89, contacto: "Fabián Portal", email: "fportalb@gmail.com", telefono: "948312037" },
+    { id: 29, grupo: "Vagabundo 4x4", frecuencia: 149, contacto: "Ruben Araki", email: "rubenaraki@outlook.com", telefono: "946354536" },
+    { id: 30, grupo: "Al Corte 4x4 Off Road", frecuencia: 149.03, contacto: "Francisco León Cachay", email: "alcorte4x4offroad@gmail.com", telefono: "952070787" },
+    { id: 31, grupo: "Traccion 4x4 Perú", frecuencia: 149.09, contacto: "Juan Carlos Cáceres", email: "info@traccion4x4peru.com", telefono: "" },
+    { id: 32, grupo: "Ruteros Perú - Club Duster", frecuencia: 149.3, contacto: "Sergio Samaniego", email: "ssamaniego@cdpracingteam.com", telefono: "979758826" },
+    { id: 33, grupo: "DEMENTES OFF ROAD", frecuencia: 149.65, contacto: "PERCY PINTO LUSTIG", email: "ppinto03@gmail.com", telefono: "923741558" },
+    { id: 34, grupo: "Team Rhino 4x4 Peru", frecuencia: 149.66, contacto: "Ricardo Campos Cueto", email: "", telefono: "982509639" },
+    { id: 35, grupo: "OVERLAND FREEDOM PERÚ", frecuencia: 149.7, contacto: "Gustavo Zamora", email: "", telefono: "948478817" },
+    { id: 36, grupo: "Dingo Off Road", frecuencia: 149.8, contacto: "Johan Moran", email: "", telefono: "998302101" },
+    { id: 37, grupo: "FOX 4X4 PERU", frecuencia: 149.82, contacto: "Alex Garcia", email: "alex.garcia.caceres@gmail.com", telefono: "951520762" },
+    { id: 38, grupo: "Suzuki 4x4 Perú", frecuencia: 149.85, contacto: "Manuel Llaguno", email: "suzuki4x4peru@gmail.com", telefono: "998877814" },
+    { id: 39, grupo: "CLUB JIMNY PERU", frecuencia: 149.99, contacto: "Orlando Alayo / Marco Soto", email: "", telefono: "998106811 / 936939826" },
+    { id: 40, grupo: "Pakatnamu Off Road", frecuencia: 150.02, contacto: "Raúl Razuri", email: "nickygristperu@hotmail.com", telefono: "917194213" },
+    { id: 41, grupo: "Tubulares Perú", frecuencia: 150.05, contacto: "", email: "", telefono: "" },
+    { id: 42, grupo: "Hijos de Ruta", frecuencia: 150.08, contacto: "Carlos Gallardo", email: "hijosderutaoffroadperu@gmail.com", telefono: "950411693" },
+    { id: 43, grupo: "PERU EXPEDITION 4X4", frecuencia: 150.14, contacto: "", email: "", telefono: "" },
+    { id: 44, grupo: "NOMADA CAMP", frecuencia: 150.2, contacto: "Marion Sart", email: "nomadacamp.explore@gmail.com", telefono: "994737089" },
+    { id: 45, grupo: "Lk Adventure", frecuencia: 150.5, contacto: "Alonso Velasquez", email: "avelasquez@lkautomotriz.com", telefono: "" },
+    { id: 46, grupo: "Team Racer 4x4", frecuencia: 150.55, contacto: "Ricardo Mendiola", email: "", telefono: "" },
+    { id: 47, grupo: "PERU NIKKEI", frecuencia: 151.65, contacto: "Angel Gonzales / Henry Chahuaylla", email: "offroadperunikkei@gmail.com", telefono: "992858654 / 997643269" },
+    { id: 48, grupo: "SinRuta (Trujillo)", frecuencia: 152.02, contacto: "", email: "", telefono: "" },
+    { id: 49, grupo: "Fugitivos", frecuencia: 157.55, contacto: "", email: "", telefono: "" }
 ];
 
 // Función para inicializar frecuencias
@@ -172,7 +182,7 @@ async function initializeFrequencies() {
         const count = await Frequency.countDocuments();
         if (count === 0) {
             await Frequency.insertMany(frequenciesData);
-            console.log('✅ Frecuencias inicializadas:', frequenciesData.length, 'grupos');
+            console.log('✅ Los 49 grupos inicializados exitosamente');
         } else {
             console.log('✅ Frecuencias ya inicializadas:', count, 'grupos');
         }
@@ -185,7 +195,6 @@ async function initializeFrequencies() {
 // RUTAS API - FRECUENCIAS
 // ===============================
 
-// Obtener todas las frecuencias
 app.get('/api/frecuencias', async (req, res) => {
     try {
         const frequencies = await Frequency.find({ activo: true }).sort({ id: 1 });
@@ -196,7 +205,6 @@ app.get('/api/frecuencias', async (req, res) => {
     }
 });
 
-// Obtener frecuencia por ID
 app.get('/api/frecuencias/:id', async (req, res) => {
     try {
         const frequency = await Frequency.findOne({ id: req.params.id });
@@ -210,10 +218,8 @@ app.get('/api/frecuencias/:id', async (req, res) => {
     }
 });
 
-// Crear nueva frecuencia
 app.post('/api/frecuencias', async (req, res) => {
     try {
-        // Auto-generar ID
         const maxId = await Frequency.findOne().sort({ id: -1 });
         const newId = maxId ? maxId.id + 1 : 1;
         
@@ -236,7 +242,6 @@ app.post('/api/frecuencias', async (req, res) => {
     }
 });
 
-// Actualizar frecuencia
 app.put('/api/frecuencias/:id', async (req, res) => {
     try {
         const frequency = await Frequency.findOneAndUpdate(
@@ -257,7 +262,6 @@ app.put('/api/frecuencias/:id', async (req, res) => {
     }
 });
 
-// Eliminar frecuencia (soft delete)
 app.delete('/api/frecuencias/:id', async (req, res) => {
     try {
         const frequency = await Frequency.findOneAndUpdate(
@@ -281,7 +285,6 @@ app.delete('/api/frecuencias/:id', async (req, res) => {
 // RUTAS API - INSCRIPCIONES
 // ===============================
 
-// Enviar código de verificación
 app.post('/api/inscripciones/enviar-codigo', async (req, res) => {
     try {
         const { email, datosInscripcion } = req.body;
@@ -331,7 +334,6 @@ app.post('/api/inscripciones/enviar-codigo', async (req, res) => {
     }
 });
 
-// Verificar código y guardar inscripción
 app.post('/api/inscripciones/verificar-codigo', async (req, res) => {
     try {
         const { email, codigo } = req.body;
@@ -353,8 +355,13 @@ app.post('/api/inscripciones/verificar-codigo', async (req, res) => {
         const lastInscripcion = await Inscripcion.findOne().sort({ N_equipo: -1 });
         const N_equipo = lastInscripcion ? lastInscripcion.N_equipo + 1 : 1001;
         
+        // Auto-generar NRO
+        const lastNRO = await Inscripcion.findOne().sort({ NRO: -1 });
+        const NRO = lastNRO ? lastNRO.NRO + 1 : 1;
+        
         // Crear nueva inscripción
         const nuevaInscripcion = new Inscripcion({
+            NRO,
             N_equipo,
             tripulante: verificacion.datosInscripcion.tripulante || 'piloto',
             nombres: verificacion.datosInscripcion.nombres,
@@ -411,7 +418,6 @@ app.post('/api/inscripciones/verificar-codigo', async (req, res) => {
     }
 });
 
-// Obtener todas las inscripciones
 app.get('/api/inscripciones', async (req, res) => {
     try {
         const inscripciones = await Inscripcion.find()
@@ -429,7 +435,6 @@ app.get('/api/inscripciones', async (req, res) => {
     }
 });
 
-// Estadísticas de inscripciones
 app.get('/api/inscripciones/stats', async (req, res) => {
     try {
         const total = await Inscripcion.countDocuments();
@@ -464,7 +469,6 @@ app.get('/api/inscripciones/stats', async (req, res) => {
     }
 });
 
-// Obtener equipo por número
 app.get('/api/inscripciones/equipo/:numero', async (req, res) => {
     try {
         const miembros = await Inscripcion.find({ N_equipo: req.params.numero });
@@ -492,7 +496,6 @@ app.get('/api/inscripciones/equipo/:numero', async (req, res) => {
     }
 });
 
-// Actualizar inscripción
 app.put('/api/inscripciones/:id', async (req, res) => {
     try {
         const inscripcion = await Inscripcion.findOneAndUpdate(
@@ -516,7 +519,6 @@ app.put('/api/inscripciones/:id', async (req, res) => {
     }
 });
 
-// Eliminar inscripción
 app.delete('/api/inscripciones/:id', async (req, res) => {
     try {
         const inscripcion = await Inscripcion.findOneAndDelete({ NRO: req.params.id });
@@ -541,7 +543,7 @@ app.delete('/api/inscripciones/:id', async (req, res) => {
 
 // Ruta raíz - servir index.html
 app.get('/', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '..','public', 'index.html'));
+    res.sendFile(path.resolve(__dirname, '..', 'public', 'index.html'));
 });
 
 // Panel administrativo
@@ -562,7 +564,9 @@ app.get('/api/health', async (req, res) => {
             version: '1.0.0',
             database: 'MongoDB Atlas',
             totalGrupos: frecuenciasCount,
-            totalInscripciones: inscripcionesCount
+            totalInscripciones: inscripcionesCount,
+            servidor: 'Render',
+            modo: 'PRODUCCIÓN COMPLETA'
         });
     } catch (error) {
         res.status(500).json({
@@ -618,10 +622,11 @@ mongoose.connection.on('reconnected', () => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
-    console.log(`🌐 Frontend: http://localhost:${PORT}`);
-    console.log(`👨‍💼 Admin: http://localhost:${PORT}/admin`);
-    console.log(`🔗 API Health: http://localhost:${PORT}/api/health`);
-    console.log(`🗄️ Base de datos: ${MONGODB_URI ? 'MongoDB Atlas' : 'Local MongoDB'}`);
+    console.log(`🌐 Frontend: https://desafio-nazca.onrender.com`);
+    console.log(`👨‍💼 Admin: https://desafio-nazca.onrender.com/admin`);
+    console.log(`🔗 API Health: https://desafio-nazca.onrender.com/api/health`);
+    console.log(`🗄️ Base de datos: MongoDB Atlas`);
+    console.log(`📊 Total grupos: 49`);
 });
 
 // Manejo de cierre graceful
