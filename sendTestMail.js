@@ -1,5 +1,5 @@
 require('dotenv').config(); // para cargar tu .env
-const emailService = require('./server/services/emailService'); // ajusta la ruta si está diferente
+const emailService = require('server/services/emailService'); // ajusta la ruta si está diferente
 
 (async () => {
   try {
