@@ -28,3 +28,4 @@ const emailService = require('./server/services/emailService'); // ajusta la rut
     process.exit(1);
   }
 })();
+module.exports = router; // ← ¿TIENES ESTA LÍNEA?
