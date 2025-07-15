@@ -53,5 +53,33 @@ router.get('/debug/jwt', (req, res) => {
     res.status(500).json({ ok: false, error: 'Error interno' });
   }
 });
+//const express = require('express');
+//const router = express.Router();
+const Frequency = require('../models/Frecuencia');
+const Registration = require('../models/Inscripcion');
+
+router.get('/debug/db', async (req, res) => {
+  try {
+    const freqCount = await Frequency.countDocuments();
+    const regCount = await Registration.countDocuments();
+    const frequencies = await Frequency.find({}, { _id: 0, id: 1, grupo: 1 }).limit(5);
+    const registrations = await Registration.find({}, { _id: 0, nombre: 1, email: 1 }).limit(5);
+
+    res.json({
+      status: 'ok',
+      frequencies: {
+        count: freqCount,
+        sample: frequencies
+      },
+      registrations: {
+        count: regCount,
+        sample: registrations
+      }
+    });
+  } catch (err) {
+    console.error('Error al hacer debug DB:', err);
+    res.status(500).json({ error: 'Error al consultar la base de datos' });
+  }
+});
 
 module.exports = router;
