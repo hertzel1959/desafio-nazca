@@ -87,7 +87,7 @@ const inscripcionSchema = new mongoose.Schema({
     diaLlegada: {
         type: String,
         required: true,
-        enum: ['jueves', 'viernes', 'sabado']
+        enum: ['miercoles','jueves', 'viernes', 'sabado']
     },
     estado: { 
         type: String, 
