@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 // ✅ CORREGIDO: Servir archivos estáticos desde la raíz (donde están index.html y admin.html)
-app.use(express.static(path.join(__dirname, '..')));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // ===============================
 // ESQUEMAS MONGODB
@@ -541,12 +541,12 @@ app.delete('/api/inscripciones/:id', async (req, res) => {
 
 // Ruta raíz - servir index.html
 app.get('/', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '..', 'index.html'));
+    res.sendFile(path.resolve(__dirname, '..','public', 'index.html'));
 });
 
 // Panel administrativo
 app.get('/admin', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '..', 'admin.html'));
+    res.sendFile(path.resolve(__dirname, '..', 'public', 'admin.html'));
 });
 
 // Ruta de salud de la API
