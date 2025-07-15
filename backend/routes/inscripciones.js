@@ -294,9 +294,7 @@ router.post('/enviar-codigo', async (req, res) => {
             });
         }
         
-        // Generar código de 6 dígitos
-        const codigo = Math.floor(100000 + Math.random() * 900000).toString();
-        
+          
         // Guardar código temporalmente (10 minutos de expiración)
         global.codigosVerificacion.set(email, {
             codigo,

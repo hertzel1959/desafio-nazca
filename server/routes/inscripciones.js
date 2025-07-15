@@ -91,10 +91,8 @@ router.post('/enviar-codigo', async (req, res) => {
             intentos: 0,
             expiresAt: Date.now() + (10 * 60 * 1000)
         });
-
         // Enviar mail con el MISMO código
         await emailService.enviarCodigoVerificacion(email, codigo, datosInscripcion);
-
         // Devolver el MISMO código en la respuesta
         res.json({
             success: true,
