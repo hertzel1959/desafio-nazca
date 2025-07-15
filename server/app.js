@@ -16,7 +16,7 @@ const path = require('path');
 const counterService = require('./services/counterService'); // ← LÍNEA AGREGADA
 // 1. IMPORTS (línea 12 aproximadamente) - AGREGAR:
 const inscripcionesRoutes = require('./routes/inscripciones');
-const testMailRoutes = require('./routes/testMail'); // ← AGREGAR ESTA LÍNEA
+const testMailRoutes = require('./routes/sendTestMail'); // ← AGREGAR ESTA LÍNEA
 const emailService = require('./services/emailService'); // ← AGREGAR ESTA LÍNEA
 
 require('dotenv').config();
