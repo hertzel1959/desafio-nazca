@@ -640,7 +640,7 @@ process.on('SIGINT', async () => {
 // Endpoint de prueba de email
 app.get('/test-email', async (req, res) => {
   try {
-    const emailService = require('./services/emailService');
+    const emailService = require('./server/services/emailService');
     
     console.log('🧪 Probando servicio de email...');
     
