@@ -12,14 +12,15 @@ router.get('/test-mail', async (req, res) => {
       grupo: 'ChelEROS',
       tipoVehiculo: 'Moto',
       marca: 'Suzuki',
-      modelo: '125G',
+      modelo: '125cc',
+      telefono: '999888777',
     };
 
-    await emailService.sendInscripcionEmail(email, datosInscripcion);
-    res.json({ message: 'Correo de prueba enviado con éxito!' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error enviando el correo' });
+    await emailService.sendInscriptionEmail(email, datosInscripcion);
+    res.json({ ok: true, message: 'Correo de prueba enviado exitosamente' });
+  } catch (error) {
+    console.error('Error enviando correo:', error);
+    res.status(500).json({ error: 'No se pudo enviar el correo' });
   }
 });
 

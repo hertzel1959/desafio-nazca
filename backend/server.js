@@ -11,6 +11,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const testMailRoutes = require('./routes/testMail');
+app.use('/api', testMailRoutes);
+
+
+
+
+
+
 // ✅ CORREGIDO: Servir archivos estáticos desde public/
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
@@ -686,5 +694,4 @@ app.get('/test-email', async (req, res) => {
     });
   }
 });
-const testMailRoutes = require('./routes/testMail');
-app.use('/api', testMailRoutes);
+
