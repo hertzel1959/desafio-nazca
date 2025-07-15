@@ -1,31 +1,40 @@
-require('dotenv').config(); // para cargar tu .env
-const emailService = require('./server/services/emailService'); // ajusta la ruta si está diferente
+const express = require('express');
+const router = express.Router();
+const emailService = require('./server/services/emailService');
 
-(async () => {
-  try {
-    // datos de prueba adaptados a tu plantilla
-    const email = 'mmolina@icresil.com';
-    const datosInscripcion = {
-      nombres: 'Mabel',
-      apellidos: 'Molina',
-      tripulante: 'Piloto',
-      grupo: 'ChelEROS',
-      tipoVehiculo: 'Moto',
-      marca: 'Suzuki',
-      modelo: '1250',
-      diaLlegada: 'Viernes',
-      N_equipo: 999,
-      frecuencia: 150.00,
-      estado: 'CONFIRMADO'
-    };
+router.get('/test-mail', async (req, res) => {
+    try {
+        console.log('🚀 INICIANDO ENVÍO DE CÓDIGO DE PRUEBA');
+        
+        const email = 'mmolina@icresil.com';
+        const datosInscripcion = {
+            modelo: '125cc',
+            marca: 'Suzuki',
+            dial_llegada: 'Viernes',
+            N_equipo: 999,
+            frecuencia: 150.00,
+            estado: 'CONFIRMADO'
+        };
 
-    await emailService.enviarCodigoVerificacion(email, '123456', datosInscripcion);
-    console.log(`✅ Email de prueba enviado exitosamente a ${email}`);
-    process.exit(0);
+        await emailService.enviarCodigoVerificacion(email, '123456', datosInscripcion);
+        
+        console.log('✅ Email de prueba enviado exitosamente a', email);
+        
+        res.status(200).json({
+            success: true,
+            message: `Email de prueba enviado exitosamente a ${email}`,
+            codigo: '123456'
+        });
+        
+    } catch (error) {
+        console.error('❌ Error enviando email:', error);
+        
+        res.status(500).json({
+            success: false,
+            message: 'Error enviando email de prueba',
+            error: error.message
+        });
+    }
+});
 
-  } catch (error) {
-    console.error('❌ Error enviando email:', error);
-    process.exit(1);
-  }
-})();
-module.exports = router; // ← ¿TIENES ESTA LÍNEA?
+module.exports = router;
