@@ -11,10 +11,14 @@ const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const morgan = require('morgan');
 const path = require('path');
+
+
 const counterService = require('./services/counterService'); // ← LÍNEA AGREGADA
 // 1. IMPORTS (línea 12 aproximadamente) - AGREGAR:
 const inscripcionesRoutes = require('./routes/inscripciones');
+const testMailRoutes = require('./routes/testMail'); // ← AGREGAR ESTA LÍNEA
 const emailService = require('./services/emailService'); // ← AGREGAR ESTA LÍNEA
+
 require('dotenv').config();
 
 // Importar rutas
@@ -165,6 +169,8 @@ app.use('/api/registration', registrationLimiter, registrationRoutes);
 app.use('/api/admin', authMiddleware.requireAuth, adminRoutes);
 app.use('/api/frecuencias', frecuenciasRoutes);
 app.use('/api/inscripciones', inscripcionesRoutes);
+app.use('/api', testMailRoutes); // ← AGREGAR ESTA LÍNEA
+
 // Cambiar por:
 //app.use('/api/inscripciones-evento', inscripcionesRoutes);
 
