@@ -1394,6 +1394,7 @@
                         <label>Día de Llegada:</label>
                         <select name="diaLlegada" required>
                             <option value="">Seleccionar...</option>
+                            <option value="miercoles" ${inscripcion?.diaLlegada === 'miercoles' ? 'selected' : ''}>📅 miercoles</option>
                             <option value="jueves" ${inscripcion?.diaLlegada === 'jueves' ? 'selected' : ''}>📅 Jueves</option>
                             <option value="viernes" ${inscripcion?.diaLlegada === 'viernes' ? 'selected' : !inscripcion ? 'selected' : ''}>📅 Viernes</option>
                             <option value="sabado" ${inscripcion?.diaLlegada === 'sabado' ? 'selected' : ''}>📅 Sábado</option>
