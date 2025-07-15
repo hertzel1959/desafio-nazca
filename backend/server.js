@@ -636,3 +636,53 @@ process.on('SIGINT', async () => {
     console.log('✅ Conexión MongoDB cerrada');
     process.exit(0);
 });
+
+// Endpoint de prueba de email
+app.get('/test-email', async (req, res) => {
+  try {
+    const emailService = require('./services/emailService');
+    
+    console.log('🧪 Probando servicio de email...');
+    
+    // Verificar conexión primero
+    const conexionOK = await emailService.verificarConexion();
+    console.log('Conexión verificada:', conexionOK);
+    
+    if (!conexionOK) {
+      return res.status(500).json({ 
+        success: false, 
+        error: 'No se pudo conectar al servicio de email' 
+      });
+    }
+    
+    // Probar envío
+    const resultado = await emailService.enviarCodigoVerificacion(
+      'mmolina@icresil.com',
+      '123456',
+      {
+        nombres: 'Test',
+        apellidos: 'Usuario',
+        tripulante: 'Piloto',
+        grupo: 'Grupo Test',
+        tipoVehiculo: 'Moto',
+        marca: 'Test',
+        modelo: 'Test',
+        diaLlegada: '29 de Agosto'
+      }
+    );
+    
+    res.json({ 
+      success: true, 
+      message: 'Email de prueba enviado',
+      resultado: resultado
+    });
+    
+  } catch (error) {
+    console.error('❌ Error en prueba de email:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      stack: error.stack
+    });
+  }
+});
