@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafío Nazca - Inscripciones</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .loading {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-orange-50 to-red-50 min-h-screen">
+    <!-- Header -->
+    <div class="max-w-7xl mx-auto p-6">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                        <i class="fas fa-users text-orange-600"></i>
+                        Desafío Nazca - Inscripciones
+                    </h1>
+                    <p class="text-gray-600 mt-2">Gestión de inscripciones para el evento • Base de datos: desafio-nazca</p>
+                    <div class="flex items-center gap-2 mt-1 text-sm text-gray-500">
+                        <i class="fas fa-database"></i>
+                        <span>Colección: inscripciones • Conectado a MongoDB</span>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button id="btnVerFrecuencias" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                        <i class="fas fa-broadcast-tower"></i>
+                        Ver Frecuencias
+                    </button>
+                    <button id="btnNuevaInscripcion" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors">
+                        <i class="fas fa-plus"></i>
+                        Nueva Inscripción
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading indicator -->
+        <div id="loadingIndicator" class="hidden bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-6">
+            <div class="flex items-center">
+                <div class="loading rounded-full h-4 w-4 border-b-2 border-blue-700 mr-2"></div>
+                Procesando...
+            </div>
+        </div>
+
+        <!-- Buscador y estadísticas -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div class="relative flex-1 max-w-md">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar por nombre, DNI, email o grupo..." 
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                </div>
+                <div class="flex gap-6 text-sm">
+                    <div class="text-center">
+                        <div id="totalInscripciones" class="text-2xl font-bold text-orange-600">0</div>
+                        <div class="text-gray-600">Total Inscripciones</div>
+                    </div>
+                    <div class="text-center">
+                        <div id="totalPilotos" class="text-2xl font-bold text-green-600">0</div>
+                        <div class="text-gray-600">Pilotos</div>
+                    </div>
+                    <div class="text-center">
+                        <div id="totalGrupos" class="text-2xl font-bold text-blue-600">0</div>
+                        <div class="text-gray-600">Grupos Activos</div>
+                    </div>
+                    <div class="text-center">
+                        <div id="totalFrecuencias" class="text-2xl font-bold text-purple-600">0</div>
+                        <div class="text-gray-600">Frecuencias BD</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de inscripciones -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Participante</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grupo y Radio</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contacto</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Llegada</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaInscripciones" class="bg-white divide-y divide-gray-200">
+                        <!-- Las filas se llenarán con JavaScript -->
+                    </tbody>
+                </table>
+                
+                <div id="emptyState" class="text-center py-12 hidden">
+                    <i class="fas fa-users text-gray-400 text-6xl mb-4"></i>
+                    <h3 class="text-sm font-medium text-gray-900 mb-2">No hay inscripciones registradas</h3>
+                    <p class="text-sm text-gray-500">La tabla de inscripciones está lista. Comienza agregando el primer participante.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de frecuencias -->
+    <div id="modalFrecuencias" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                        <i class="fas fa-broadcast-tower text-blue-600"></i>
+                        Tabla de Frecuencias - Base de Datos
+                    </h2>
+                    <button id="cerrarModalFrecuencias" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+
+                <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-blue-700">
+                        <strong>Información:</strong> Estos datos provienen de la colección "frecuencias" 
+                        en la base de datos "desafio-nazca".
+                    </p>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full border border-gray-200 rounded-lg">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Nombre del Grupo</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Contacto</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Frecuencia de Radio</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaFrecuenciasBody" class="divide-y divide-gray-200">
+                            <!-- Se llena con JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex justify-end mt-6">
+                    <button id="cerrarFrecuencias" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de formulario -->
+    <div id="modalFormulario" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 id="tituloModal" class="text-2xl font-bold text-gray-800">Nueva Inscripción</h2>
+                    <button id="cerrarModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+
+                <form id="formularioInscripcion" class="space-y-6">
+                    <!-- Información del participante -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Información del Participante</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Tripulante *</label>
+                                <select id="tripulante" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="PILOTO">PILOTO</option>
+                                    <option value="COPILOTO">COPILOTO</option>
+                                    <option value="ACOMPAÑANTE 1">ACOMPAÑANTE 1</option>
+                                    <option value="ACOMPAÑANTE 2">ACOMPAÑANTE 2</option>
+                                    <option value="ACOMPAÑANTE 3">ACOMPAÑANTE 3</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nombres *</label>
+                                <input type="text" id="nombres" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Apellidos *</label>
+                                <input type="text" id="apellidos" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Edad *</label>
+                                <input type="number" id="edad" min="1" max="120" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Experiencia *</label>
+                                <select id="experiencia" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="EXPERTO">EXPERTO</option>
+                                    <option value="INTERMEDIO">INTERMEDIO</option>
+                                    <option value="PRINCIPIANTE">PRINCIPIANTE</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Grupo Sanguíneo *</label>
+                                <input type="text" id="grupoSanguineo" placeholder="Ej: O+, A-, B+" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">DNI *</label>
+                                <input type="text" id="dni" maxlength="8" placeholder="12345678" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                                <input type="email" id="email" placeholder="ejemplo@email.com" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Celular *</label>
+                                <input type="text" id="celular" maxlength="9" placeholder="987654321" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contacto de emergencia -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Contacto de Emergencia</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Persona de Contacto *</label>
+                                <input type="text" id="personaContacto" placeholder="Nombre completo" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Celular de Contacto *</label>
+                                <input type="text" id="celularContacto" maxlength="9" placeholder="987654321" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Grupo y frecuencia -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Información del Grupo y Comunicación</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de Grupo *</label>
+                                <select id="grupo" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                                    <option value="">Seleccionar...</option>
+                                    <!-- Se llena con JavaScript -->
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">Los grupos existentes auto-completan contacto y frecuencia</p>
+                            </div>
+
+                            <div id="contenedorNuevoGrupo" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Nuevo Grupo *</label>
+                                <input type="text" id="nuevoGrupo" placeholder="Ingrese el nombre del grupo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Contacto del Grupo *</label>
+                                <input type="text" id="contacto" placeholder="Nombre del contacto" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">N° de Grupo (Auto)</label>
+                                <input type="text" id="numeroGrupo" disabled class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                                    <i class="fas fa-broadcast-tower"></i>
+                                    Frecuencia de Radio (MHz) *
+                                </label>
+                                <input type="number" id="frecuencia" step="0.001" min="144" max="148" placeholder="146.520" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                                <p class="text-xs text-gray-500 mt-1">Rango: 144.000 - 148.000 MHz</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vehículo -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Información del Vehículo</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Vehículo *</label>
+                                <select id="tipoVehiculo" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="MOTO">MOTO</option>
+                                    <option value="CUATRIMOTO">CUATRIMOTO</option>
+                                    <option value="UTV">UTV</option>
+                                    <option value="ARENERO">ARENERO</option>
+                                    <option value="CAMIONETA">CAMIONETA</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Marca *</label>
+                                <input type="text" id="marca" placeholder="Ej: Honda, Toyota" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Modelo *</label>
+                                <input type="text" id="modelo" placeholder="Ej: CRF450, Hilux" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Año *</label>
+                                <input type="number" id="año" min="1900" max="2025" placeholder="2023" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Día de llegada -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Información del Evento</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Día de Llegada *</label>
+                                <select id="diaLlegada" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="JUEVES">JUEVES</option>
+                                    <option value="VIERNES">VIERNES</option>
+                                    <option value="SABADO">SABADO</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="flex justify-end space-x-4 pt-6 border-t">
+                        <button type="button" id="btnCancelar" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="submit" id="btnGuardar" class="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg flex items-center gap-2 transition-colors">
+                            <i class="fas fa-save"></i>
+                            Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/js/inscripciones-crud.js"></script>
+</body>
+</html>
