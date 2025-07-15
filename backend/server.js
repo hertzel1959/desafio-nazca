@@ -686,3 +686,5 @@ app.get('/test-email', async (req, res) => {
     });
   }
 });
+const testMailRoutes = require('./routes/testMail');
+app.use('/api', testMailRoutes);
