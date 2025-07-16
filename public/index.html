@@ -1647,10 +1647,7 @@
                         datosInscripcion: inscripcionTemporal
                     })
                 });
-                console.log('Buscando email:', email);
-                console.log('Participant encontrado:', participant);
-                console.log('Código guardado:', participant?.codigoVerificacion?.codigo);
-                console.log('Código recibido del frontend:', codigoIngresado);
+                
                 const result = await response.json();
                 
                 if (response.ok) {
@@ -1680,6 +1677,7 @@
                     }, 2000);
                 }
                 
+                
             } catch (error) {
                 console.error('❌ Error verificando código:', error);
                 showMessage('Error de conexión: ' + error.message, 'error');
@@ -1687,6 +1685,10 @@
                 submitBtn.disabled = false;
                 submitBtn.textContent = '✅ Verificar y Guardar';
             }
+            console.log('Buscando email:', email);
+            console.log('Participant encontrado:', participant);
+            console.log('Código guardado:', participant?.codigoVerificacion?.codigo);
+            console.log('Código recibido del frontend:', codigoIngresado);
         }
 
         // Reenviar código
