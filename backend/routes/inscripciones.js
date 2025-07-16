@@ -121,22 +121,54 @@ router.post('/', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('❌ Error creando inscripción directa:', error);
-        
-        // Manejar errores de validación de Mongoose
-        if (error.name === 'ValidationError') {
-            const errores = Object.values(error.errors).map(err => err.message);
-            return res.status(400).json({ 
-                message: 'Error de validación', 
-                errores 
+    console.error('❌ Error creando inscripción directa:', error);
+    
+    // 🎯 MANEJO ESPECÍFICO DE DNI DUPLICADO
+    if (error.code === 11000) {
+        if (error.keyPattern?.dni) {
+            return res.status(400).json({
+                success: false,
+                message: `El DNI ${error.keyValue.dni} ya está registrado en el sistema`,
+                field: 'dni',
+                action: 'duplicate_dni'
             });
         }
-        
-        res.status(500).json({ 
-            message: 'Error interno del servidor', 
-            error: error.message 
+        if (error.keyPattern?.email) {
+            return res.status(400).json({
+                success: false,
+                message: `El email ${error.keyValue.email} ya está registrado en el sistema`,
+                field: 'email',
+                action: 'duplicate_email'
+            });
+        }
+        // Error de duplicado genérico
+        return res.status(400).json({
+            success: false,
+            message: 'Ya existe un registro con estos datos',
+            action: 'duplicate_data'
         });
     }
+    
+    // 🎯 MANEJO DE ERRORES DE VALIDACIÓN
+    if (error.name === 'ValidationError') {
+        const errores = Object.values(error.errors).map(err => err.message);
+        console.error('📋 Errores de validación:', errores);
+        return res.status(400).json({ 
+            success: false,
+            message: 'Errores de validación', 
+            errors: errores,
+            action: 'validation_error'
+        });
+    }
+    
+    // 🎯 ERROR GENÉRICO
+    res.status(500).json({ 
+        success: false,
+        message: 'Error interno del servidor', 
+        error: error.message,
+        action: 'server_error'
+    });
+}  
 });
 
 // PUT /api/inscripciones/:id - Actualizar inscripción

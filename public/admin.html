@@ -1553,9 +1553,34 @@ async function saveInscripcion(event) {
                 loadInscripcionesStats();
             } else {
                 console.error('❌ ADMIN: Error del servidor:', result);
-                showMessage('❌ Error: ' + (result.message || result.error || 'Error desconocido'), 'error');
-                if (result.errors && Array.isArray(result.errors)) {
-                    result.errors.forEach(error => showMessage('• ' + error, 'error'));
+    
+                // 🎯 MANEJO ESPECÍFICO DE ERRORES
+                if (result.action === 'duplicate_dni') {
+                    showMessage(`❌ DNI DUPLICADO: ${result.message}`, 'error');
+                    // Enfocar el campo DNI para que lo cambie
+                    const dniInput = document.querySelector('input[name="dni"]');
+                    if (dniInput) {
+                        dniInput.focus();
+                        dniInput.style.borderColor = '#e53e3e';
+                        dniInput.style.backgroundColor = '#fed7d7';
+                    }
+                } else if (result.action === 'duplicate_email') {
+                    showMessage(`❌ EMAIL DUPLICADO: ${result.message}`, 'error');
+                    // Enfocar el campo email
+                    const emailInput = document.querySelector('input[name="email"]');
+                    if (emailInput) {
+                        emailInput.focus();
+                        emailInput.style.borderColor = '#e53e3e';
+                        emailInput.style.backgroundColor = '#fed7d7';
+                    }
+                } else if (result.action === 'validation_error') {
+                    showMessage('❌ Error de validación: ' + (result.message || 'Datos incorrectos'), 'error');
+                    if (result.errors && Array.isArray(result.errors)) {
+                        result.errors.forEach(error => showMessage('• ' + error, 'error'));
+                    }
+                } else {
+                    // Error genérico
+                    showMessage('❌ Error: ' + (result.message || result.error || 'Error desconocido'), 'error');
                 }
             }
         }
