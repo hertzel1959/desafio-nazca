@@ -119,7 +119,10 @@ router.post('/verificar-codigo', async (req, res) => {
         const { email, codigo } = req.body;
         
         console.log('🔍 Verificando código para:', email);
-        
+        console.log('Buscando email:', email);
+        console.log('Participant encontrado:', participant);
+        console.log('Código guardado:', participant?.codigoVerificacion?.codigo);
+        console.log('Código recibido del frontend:', codigoIngresado);
         // Validar parámetros
         if (!email || !codigo) {
             return res.status(400).json({

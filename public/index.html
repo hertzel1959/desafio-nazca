@@ -1636,6 +1636,8 @@
             try {
                 // Verificar código con la API
                 //const response = await fetch('/api/inscripciones/verificar-codigo', {
+                
+
                const response = await fetch('/api/inscripciones/verificar-codigo', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1645,7 +1647,10 @@
                         datosInscripcion: inscripcionTemporal
                     })
                 });
-                
+                console.log('Buscando email:', email);
+                console.log('Participant encontrado:', participant);
+                console.log('Código guardado:', participant?.codigoVerificacion?.codigo);
+                console.log('Código recibido del frontend:', codigoIngresado);
                 const result = await response.json();
                 
                 if (response.ok) {
