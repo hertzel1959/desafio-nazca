@@ -1943,22 +1943,47 @@ async function saveInscripcion(event) {
         }
 
         function showMessage(message, type) {
-            // Remover mensajes anteriores
-            document.querySelectorAll('.message').forEach(m => m.remove());
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}`;
-            messageDiv.textContent = message;
-            
-            const container = document.querySelector('.admin-container');
-            container.insertBefore(messageDiv, container.firstChild);
-            
+    // Remover mensaje anterior si existe
+    const existingMessage = document.querySelector('.message-alert');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+    
+    // Crear nuevo mensaje
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message-alert ${type}`;
+    messageDiv.textContent = message;
+    
+    // Estilos del mensaje
+    messageDiv.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 5px;
+        color: white;
+        font-weight: bold;
+        z-index: 10000;
+        max-width: 400px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        animation: slideInRight 0.3s ease-out;
+        ${type === 'success' ? 'background: linear-gradient(45deg, #28a745, #20c997);' : 'background: linear-gradient(45deg, #dc3545, #e74c3c);'}
+    `;
+    
+    document.body.appendChild(messageDiv);
+    
+    // Auto-remover después de 5 segundos
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.style.animation = 'slideOutRight 0.3s ease-out forwards';
             setTimeout(() => {
                 if (messageDiv.parentNode) {
                     messageDiv.parentNode.removeChild(messageDiv);
                 }
-            }, 5000);
+            }, 300);
         }
+    }, 5000);
+}
 
         function refreshStats() {
             loadDashboard();
