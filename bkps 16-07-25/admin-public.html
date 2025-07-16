@@ -947,12 +947,7 @@
                     </div>
                     <div class="form-buttons">
                         <button type="button" class="btn btn-danger" onclick="hideAllForms()">Cancelar</button>
-                        <button type="submit" class="btn ${isEdit ? 'btn-warning' : 'btn-success'}" style="font-size: 16px; padding: 12px 24px;">
-    ${isEdit ? '✏️ Actualizar Inscripción' : '💾 Guardar Inscripción'}
-</button>
-
-
-                        /* <button type="submit" class="btn ${isEdit ? 'btn-warning' : 'btn-success'}">${isEdit ? 'Actualizar' : 'Guardar'}</button> */
+                        <button type="submit" class="btn ${isEdit ? 'btn-warning' : 'btn-success'}">${isEdit ? 'Actualizar' : 'Guardar'}</button>
                     </div>
                 </form>
             `;
@@ -1552,7 +1547,7 @@
                             // Ocultar formulario y mostrar verificación
                             hideAllForms();
                             setTimeout(() => {
-                               // showCodigoVerificacionModal(data.email, envioResult.devCode);
+                                showCodigoVerificacionModal(data.email, envioResult.devCode);
                             }, 1000);
                         } else {
                             throw new Error('Error enviando código de verificación');
@@ -1560,7 +1555,7 @@
                     
                     // Ocultar formulario actual y mostrar verificación
                     hideAllForms();
-                   // showCodigoVerificacionModal(data.email);
+                    showCodigoVerificacionModal(data.email);
                 }
                 
             } catch (error) {
@@ -1575,7 +1570,7 @@
         
 
         // Modal para ingresar código de verificación
-      /*  function showCodigoVerificacionModal(email) {
+        function showCodigoVerificacionModal(email) {
             const modalContent = `
                 <div style="text-align: center; padding: 20px;">
                     <div style="font-size: 4rem; margin-bottom: 20px;">📧</div>
@@ -1662,9 +1657,8 @@
                 }
             }, 100);
         }
-*/
+
         // Verificar código ingresado
-        /*
         async function verificarCodigo(event) {
             event.preventDefault();
             
@@ -1728,9 +1722,8 @@
                 submitBtn.textContent = '✅ Verificar y Guardar';
             }
         }
-*/
+
         // Reenviar código
-/*
         async function reenviarCodigo(email) {
             try {
                 // Generar nuevo código
@@ -1775,9 +1768,8 @@
                 showMessage('Error reenviando código: ' + error.message, 'error');
             }
         }
-*/
+
         // Cancelar proceso de verificación
-/*        
         function cancelarVerificacion() {
             if (confirm('¿Está seguro de cancelar la inscripción?\n\nDeberá completar el formulario nuevamente.')) {
                 // Limpiar datos temporales
@@ -1788,7 +1780,7 @@
                 showMessage('Inscripción cancelada', 'success');
             }
         }
-*/
+
         // Modal de éxito after verification
         function showSuccessModal(inscripcionData) {
             const modalContent = `
@@ -2173,7 +2165,6 @@
             }
         });
        // ✅ AGREGAR esta función (del artifact anterior):
-       /*
 async function enviarCodigoVerificacion(email, datosInscripcion) {
     try {
         console.log('📧 Enviando código REAL a:', email);
