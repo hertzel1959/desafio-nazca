@@ -83,9 +83,9 @@ router.post('/', async (req, res) => {
         }
 
         // Generar número de grupo automáticamente
-        const totalInscripciones = await Inscripcion.countDocuments({ activo: true });
+       /* const totalInscripciones = await Inscripcion.countDocuments({ activo: true });
         const numeroGrupo = totalInscripciones + 1;
-
+        */
         // 🎯 CREAR INSCRIPCIÓN DIRECTAMENTE (ADMIN)
         const nuevaInscripcion = new Inscripcion({
             tripulante,
@@ -101,7 +101,6 @@ router.post('/', async (req, res) => {
             celularContacto: celularContacto.trim(),
             grupo: grupo.trim(),
             contacto: contacto.trim(),
-            numeroGrupo,
             frecuencia: parseFloat(frecuencia),
             tipoVehiculo,
             marca: marca.trim(),
@@ -423,14 +422,14 @@ router.post('/verificar-codigo', async (req, res) => {
             }
             
             // Generar número de equipo automáticamente
-            const totalInscripciones = await Inscripcion.countDocuments({ activo: true });
+           /* const totalInscripciones = await Inscripcion.countDocuments({ activo: true });
             const numeroEquipo = totalInscripciones + 1;
-            
+            */
             // Preparar datos para la inscripción con numero generado
             const datosCompletos = {
                 ...datosInscripcion,
-                N_equipo: numeroEquipo,
-                numeroGrupo: numeroEquipo,
+                //N_equipo: numeroEquipo,
+                //numeroGrupo: numeroEquipo,
                 activo: true
             };
             

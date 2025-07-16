@@ -168,7 +168,7 @@ const inscripcionSchema = new mongoose.Schema({
     type: String,
     required: [true, 'El día de llegada es obligatorio'],
     enum: {
-      values: ['jueves', 'viernes', 'sabado'],
+      values: ['miercoles','jueves', 'viernes', 'sabado'],
       message: 'Día de llegada debe ser: jueves, viernes o sabado'
     },
     default: 'viernes' // Viernes como default más común
@@ -257,110 +257,97 @@ inscripcionSchema.methods.toAdminJSON = function() {
   return this.toPublicJSON();
 };
 
-// ✅ MIDDLEWARE PRE-SAVE CORREGIDO
+// ✅ MIDDLEWARE PRE-SAVE CON RELACIÓN CORRECTA
 inscripcionSchema.pre('save', async function(next) {
   try {
     console.log(`🔄 Pre-save Inscripción - isNew: ${this.isNew}, NRO actual: ${this.NRO}`);
     
-    // Generar NRO autoincremental solo para documentos nuevos
+    // ✅ 1. GENERAR NRO SECUENCIAL (solo para inscripciones)
     if (this.isNew && !this.NRO) {
       try {
-        // ✅ CORRECCIÓN: Usar await con getNextSequence
-        this.NRO = await counterService.getNextSequence('inscripciones', 'NRO');
-        console.log(`🔢 Asignando NRO de inscripción: ${this.NRO}`);
+        // Verificar si el contador está inicializado
+        let currentNRO = counterService.getCurrentValue('inscripciones', 'NRO');
+        
+        // Si no está inicializado, inicializarlo
+        if (currentNRO === 0) {
+          console.log('🔧 Inicializando contador NRO...');
+          await counterService.initCounter('inscripciones', 'NRO');
+        }
+        
+        // Obtener siguiente valor secuencial
+        this.NRO = counterService.getNextValue('inscripciones', 'NRO');
+        console.log(`🔢 Asignando NRO secuencial: ${this.NRO}`);
+        
       } catch (counterError) {
         console.error('❌ Error obteniendo NRO:', counterError);
-        // Fallback: usar timestamp si falla el counter
-        this.NRO = Date.now() % 100000;
+        // ✅ FALLBACK: contar documentos existentes
+        const count = await this.constructor.countDocuments({ activo: true });
+        this.NRO = count + 1;
         console.log(`🔢 Fallback NRO: ${this.NRO}`);
       }
     }
 
-    // Generar N_equipo autoincremental para nuevos equipos
-    if (this.isNew && !this.N_equipo) {
-      try {
-        // ✅ CORRECCIÓN: Usar await con getNextSequence
-        this.N_equipo = await counterService.getNextSequence('inscripciones', 'N_equipo');
-        console.log(`👥 Asignando N_equipo: ${this.N_equipo}`);
-      } catch (counterError) {
-        console.error('❌ Error obteniendo N_equipo:', counterError);
-        // Fallback: usar timestamp si falla el counter
-        this.N_equipo = Date.now() % 10000;
-        console.log(`👥 Fallback N_equipo: ${this.N_equipo}`);
-      }
-    }
-
-    // Validar email único (case insensitive)
-    if (this.isModified('email')) {
-      const existingEmail = await this.constructor.findOne({
-        email: this.email.toLowerCase(),
-        _id: { $ne: this._id },
-        activo: true
-      });
-      
-      if (existingEmail) {
-        const error = new Error('Ya existe una inscripción con este email');
-        error.name = 'ValidationError';
-        throw error;
-      }
-    }
-
-    // Validar DNI único
-    if (this.isModified('dni')) {
-      const existingDni = await this.constructor.findOne({
-        dni: this.dni,
-        _id: { $ne: this._id },
-        activo: true
-      });
-      
-      if (existingDni) {
-        const error = new Error('Ya existe una inscripción con este DNI');
-        error.name = 'ValidationError';
-        throw error;
-      }
-    }
-
-    // Validar que solo hay un tripulante de cada tipo por equipo
-    if (this.isModified('N_equipo') || this.isModified('tripulante')) {
-      const existingTripulante = await this.constructor.findOne({
-        N_equipo: this.N_equipo,
-        tripulante: this.tripulante,
-        _id: { $ne: this._id },
-        activo: true
-      });
-      
-      if (existingTripulante) {
-        const error = new Error(`Ya existe un ${this.tripulante} para el equipo ${this.N_equipo}`);
-        error.name = 'ValidationError';
-        throw error;
-      }
-    }
-
-    // Auto-asignar datos del grupo desde frecuencias
+    // ✅ 2. ASIGNAR N_EQUIPO BASADO EN EL GRUPO SELECCIONADO
     if (this.isModified('grupo') && this.grupo) {
       try {
         const Frecuencia = mongoose.model('Frecuencia');
         const frecuencia = await Frecuencia.findOne({ grupo: this.grupo });
         
         if (frecuencia) {
+          // 🎯 N_EQUIPO = NRO DEL GRUPO (no secuencial independiente)
+          this.N_equipo = frecuencia.NRO;
           this.frecuencia = frecuencia.frecuencia;
           this.frecuenciaGrupo = frecuencia.grupo;
           this.liderGrupo = frecuencia.contacto || '';
-          console.log(`📻 Datos de frecuencia auto-asignados: ${frecuencia.frecuencia} MHz para grupo ${this.grupo}`);
+          
+          console.log(`👥 N_equipo asignado: ${this.N_equipo} (NRO del grupo "${this.grupo}")`);
+          console.log(`📻 Frecuencia asignada: ${frecuencia.frecuencia} MHz`);
+        } else {
+          console.warn(`⚠️ No se encontró frecuencia para grupo: ${this.grupo}`);
+          throw new Error(`Grupo "${this.grupo}" no existe en la tabla de frecuencias`);
         }
       } catch (frecError) {
-        console.warn('⚠️ Error obteniendo datos de frecuencia:', frecError.message);
-        // No bloquear el guardado si falla la frecuencia
+        console.error('❌ Error obteniendo datos del grupo:', frecError.message);
+        throw frecError; // Bloquear guardado si no existe el grupo
       }
     }
 
+    // ✅ 3. SI ES NUEVO Y NO SE MODIFICÓ EL GRUPO, PERO YA TIENE GRUPO
+    if (this.isNew && !this.N_equipo && this.grupo) {
+      try {
+        const Frecuencia = mongoose.model('Frecuencia');
+        const frecuencia = await Frecuencia.findOne({ grupo: this.grupo });
+        
+        if (frecuencia) {
+          this.N_equipo = frecuencia.NRO;
+          this.frecuencia = frecuencia.frecuencia;
+          this.frecuenciaGrupo = frecuencia.grupo;
+          this.liderGrupo = frecuencia.contacto || '';
+          
+          console.log(`👥 N_equipo asignado (nuevo): ${this.N_equipo}`);
+        }
+      } catch (error) {
+        console.error('❌ Error asignando N_equipo para nuevo documento:', error);
+      }
+    }
+
+    // ✅ 4. NORMALIZAR DATOS
+    if (this.email) {
+      this.email = this.email.toLowerCase().trim();
+    }
+    
+    if (this.dni) {
+      this.dni = this.dni.trim();
+    }
+
+    console.log(`✅ Pre-save completado: NRO=${this.NRO}, N_equipo=${this.N_equipo}, grupo=${this.grupo}`);
     next();
+    
   } catch (error) {
-    console.error('❌ Error en pre-save:', error);
+    console.error('❌ Error crítico en pre-save:', error);
     next(error);
   }
 });
-
 // Middleware post-save para logging
 inscripcionSchema.post('save', function(doc) {
   console.log(`✅ Inscripción guardada: ${doc.nombres} ${doc.apellidos} (Equipo: ${doc.N_equipo}, ${doc.tripulante}, NRO: ${doc.NRO})`);

@@ -141,9 +141,9 @@ mongoose.connect(MONGODB_URI, {
     console.log('🔢 Inicializando contadores...');
     await counterService.initCounter('frecuencias', 'NRO');
     await counterService.initCounter('inscripciones', 'NRO');        // ← MOVER AQUÍ
-    await counterService.initCounter('inscripciones', 'N_equipo');   // ← MOVER AQUÍ
+    //await counterService.initCounter('inscripciones', 'N_equipo');   // ← MOVER AQUÍ
     console.log('✅ Contadores listos');
-    
+     console.log(`📊 Próximo NRO: ${counterService.getCurrentValue('inscripciones', 'NRO')}`);
     // Verificar servicio de email
     console.log('📧 Verificando servicio de email...');
     const emailConectado = await emailService.verificarConexion();
