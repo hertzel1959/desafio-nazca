@@ -1,4 +1,4 @@
-// services/emailService.js
+// services/emailService.js - VERSIÓN COMPLETAMENTE CORREGIDA
 
 const nodemailer = require('nodemailer');
 
@@ -13,14 +13,14 @@ class EmailService {
         try {
             // 🎯 CONFIGURACIÓN PARA GMAIL (más común)
             if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-                this.transporter = nodemailer.createTransporter({
+                this.transporter = nodemailer.createTransport({  // ✅ CORREGIDO #1
                     service: 'gmail',
                     host: 'smtp.gmail.com',
                     port: 587,
                     secure: false,
                     auth: {
                         user: process.env.EMAIL_USER,
-                        pass: process.env.EMAIL_PASS // App Password, no contraseña normal
+                        pass: process.env.EMAIL_PASS
                     }
                 });
                 console.log('✅ EmailService: Transporter de Gmail configurado');
@@ -28,7 +28,7 @@ class EmailService {
             
             // 🎯 CONFIGURACIÓN SMTP GENÉRICA (si no es Gmail)
             else if (process.env.SMTP_HOST) {
-                this.transporter = nodemailer.createTransporter({
+                this.transporter = nodemailer.createTransport({  // ✅ CORREGIDO #2
                     host: process.env.SMTP_HOST,
                     port: process.env.SMTP_PORT || 587,
                     secure: process.env.SMTP_PORT === '465',
@@ -42,7 +42,7 @@ class EmailService {
             
             // 🎯 MODO DESARROLLO - Ethereal Email (testing)
             else {
-                console.log('⚠️ EmailService: Creando transporter de prueba...');
+                console.log('⚠️ EmailService: Sin configuración de email, creando transporter de prueba...');
                 this.createTestTransporter();
                 return;
             }
@@ -60,7 +60,7 @@ class EmailService {
         try {
             const testAccount = await nodemailer.createTestAccount();
             
-            this.transporter = nodemailer.createTransporter({
+            this.transporter = nodemailer.createTransport({  // ✅ CORREGIDO #3
                 host: 'smtp.ethereal.email',
                 port: 587,
                 secure: false,
@@ -93,16 +93,14 @@ class EmailService {
         }
     }
 
-     // 🎯 AGREGAR ESTE MÉTODO:
+    // Alias en español para compatibilidad
     async verificarConexion() {
-        // Alias en español para verifyConnection
         return await this.verifyConnection();
     }
 
-    // 🎯 TAMBIÉN AGREGAR ESTE MÉTODO DE INICIALIZACIÓN:
     async inicializar() {
         if (!this.initialized) {
-            await this.initTransporter();
+            this.initTransporter();
         }
         return this.isReady();
     }
@@ -175,7 +173,7 @@ class EmailService {
     isReady() {
         const ready = this.initialized && this.transporter !== null;
         if (!ready) {
-            console.error('❌ EmailService no está listo');
+            console.log('⚠️ EmailService no está listo');
         }
         return ready;
     }
@@ -310,8 +308,6 @@ class EmailService {
         </html>
         `;
     }
-
-    
 }
 
 module.exports = new EmailService();
