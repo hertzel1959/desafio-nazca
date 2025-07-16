@@ -1649,7 +1649,8 @@
                 });
                 
                 const result = await response.json();
-                
+                console.log('Código guardado:', participant?.codigoVerificacion?.codigo);
+                console.log('Código recibido del frontend:', codigoIngresado);
                 if (response.ok) {
                     console.log('✅ Código verificado correctamente');
                     
@@ -1688,8 +1689,7 @@
             /*console.log('Buscando email:', email);
             console.log('Participant encontrado:', participant);
             */
-            console.log('Código guardado:', participant?.codigoVerificacion?.codigo);
-            console.log('Código recibido del frontend:', codigoIngresado);
+           
         }
 
         // Reenviar código
