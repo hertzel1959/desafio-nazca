@@ -1534,7 +1534,7 @@
                     inscripcionTemporal = data;
                     
                     // Generar código de verificación (6 dígitos)
-                    codigoVerificacion = Math.floor(100000 + Math.random() * 900000).toString();
+                    //codigoVerificacion = Math.floor(100000 + Math.random() * 900000).toString();
                     
                     // ✅ REEMPLAZAR con llamada a API real:
                       // ✅ REEMPLAZAR POR:
@@ -1675,11 +1675,11 @@
             
             try {
                 // Verificar código
-                if (codigoIngresado === codigoVerificacion) {
+              //  if (codigoIngresado === codigoVerificacion) {
                     console.log('✅ Código verificado correctamente');
                     
                     // Ahora sí guardar la inscripción en la base de datos
-                    const response = await fetch('/api/inscripciones', {
+                    const response = await fetch('/api/inscripciones/verificar-codigo', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(inscripcionTemporal)
@@ -1707,21 +1707,6 @@
                             result.errors.forEach(error => showMessage('• ' + error, 'error'));
                         }
                     }
-                } else {
-                    // Código incorrecto
-                    showMessage('❌ Código incorrecto. Por favor verifique e intente nuevamente.', 'error');
-                    document.getElementById('codigoInput').value = '';
-                    document.getElementById('codigoInput').focus();
-                    
-                    // Efecto visual de error
-                    const input = document.getElementById('codigoInput');
-                    input.style.borderColor = '#e53e3e';
-                    input.style.backgroundColor = '#fed7d7';
-                    setTimeout(() => {
-                        input.style.borderColor = '#8b5a3c';
-                        input.style.backgroundColor = 'white';
-                    }, 2000);
-                }
                 
             } catch (error) {
                 console.error('❌ Error verificando código:', error);
