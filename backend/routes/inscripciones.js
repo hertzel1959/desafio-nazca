@@ -333,15 +333,15 @@ router.post('/enviar-codigo', async (req, res) => {
 // ===============================
 router.post('/verificar-codigo', async (req, res) => {
     try {
-        const { email, codigo } = req.body;
+        const { email, codigo, datosInscripcion } = req.body;
         
         console.log('🔍 Verificando código para:', email);
         
         // Validar parámetros
-        if (!email || !codigo) {
+        if (!email || !codigo || !datosInscripcion) {
             return res.status(400).json({
                 success: false,
-                message: 'Email y código son requeridos'
+                message: 'Email, código y datos de inscripción son requeridos'
             });
         }
         
@@ -384,47 +384,57 @@ router.post('/verificar-codigo', async (req, res) => {
         
         console.log('✅ Código verificado correctamente');
         
-        // Código correcto - proceder a guardar inscripción
-        const datosInscripcion = datosVerificacion.datosInscripcion;
-        
-        // Aquí usar tu función existente para guardar en la base de datos
-        // Ajusta esto según tu implementación actual
-        let nuevaInscripcion;
-        
-        if (typeof guardarInscripcionEnDB === 'function') {
-            // Si tienes una función específica para guardar
-            nuevaInscripcion = await guardarInscripcionEnDB(datosInscripcion);
-        } else {
-            // Implementación genérica (ajustar según tu DB)
-            const Inscripcion = require('../models/Inscripcion'); // Ajustar ruta
-            nuevaInscripcion = new Inscripcion(datosInscripcion);
-            await nuevaInscripcion.save();
-        }
-        
-        console.log('✅ Inscripción guardada en DB:', nuevaInscripcion.N_equipo || nuevaInscripcion.id);
-        
-        // Enviar email de confirmación (no bloquear el proceso si falla)
+        // 🎯 CÓDIGO CORRECTO - GUARDAR INSCRIPCIÓN EN LA BASE DE DATOS
         try {
-            await emailService.enviarConfirmacionInscripcion(email, nuevaInscripcion);
-            console.log('✅ Email de confirmación enviado');
-        } catch (emailError) {
-            console.error('⚠️ Error enviando confirmación (inscripción ya guardada):', emailError);
+            const nuevaInscripcion = new Inscripcion(datosInscripcion);
+            await nuevaInscripcion.save();
+            
+            console.log('✅ Inscripción guardada en DB:', nuevaInscripcion.N_equipo || nuevaInscripcion.NRO);
+            
+            // 🎯 ENVIAR EMAIL DE CONFIRMACIÓN (segundo email)
+            try {
+                await emailService.enviarConfirmacionInscripcion(email, nuevaInscripcion);
+                console.log('✅ Email de confirmación enviado');
+            } catch (emailError) {
+                console.error('⚠️ Error enviando confirmación (inscripción ya guardada):', emailError);
+                // No fallar el proceso si el email de confirmación falla
+            }
+            
+            // Limpiar código usado
+            global.codigosVerificacion.delete(email);
+            
+            res.json({
+                success: true,
+                message: 'Código verificado e inscripción guardada exitosamente',
+                data: nuevaInscripcion.toPublicJSON ? nuevaInscripcion.toPublicJSON() : nuevaInscripcion
+            });
+            
+        } catch (dbError) {
+            console.error('❌ Error guardando en base de datos:', dbError);
+            
+            // Manejar errores específicos de la base de datos
+            if (dbError.name === 'ValidationError') {
+                const errores = Object.values(dbError.errors).map(err => err.message);
+                return res.status(400).json({
+                    success: false,
+                    message: 'Error de validación',
+                    errors: errores
+                });
+            }
+            
+            // Error genérico de base de datos
+            return res.status(500).json({
+                success: false,
+                message: 'Error guardando inscripción en la base de datos',
+                error: dbError.message
+            });
         }
-        
-        // Limpiar código usado
-        global.codigosVerificacion.delete(email);
-        
-        res.json({
-            success: true,
-            message: 'Código verificado e inscripción guardada exitosamente',
-            data: nuevaInscripcion
-        });
         
     } catch (error) {
         console.error('❌ Error verificando código:', error);
         res.status(500).json({
             success: false,
-            message: 'Error verificando código',
+            message: 'Error interno del servidor',
             error: error.message
         });
     }

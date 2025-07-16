@@ -764,10 +764,6 @@
         let editingId = null;
         let editingType = null;
 
-        // Variables globales para verificación por email
-        let inscripcionTemporal = null;
-        let codigoVerificacion = null;
-
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
             console.log('✅ Admin iniciado');
@@ -1178,7 +1174,7 @@
             return classes[estado] || 'badge-secondary';
         }
 
-        // FORMULARIO DE INSCRIPCIONES MEJORADO
+        // FORMULARIO DE INSCRIPCIONES PARA ADMIN
         function showInscripcionForm(id = null) {
             editingId = id;
             editingType = 'inscripcion';
@@ -1195,7 +1191,7 @@
             ).join('');
             
             const formContent = `
-                <h3>${isEdit ? '✏️ Editar Inscripción' : '📝 Nueva Inscripción'}</h3>
+                <h3>${isEdit ? '✏️ Editar Inscripción' : '📝 Nueva Inscripción (Admin)'}</h3>
                 <form class="admin-form" onsubmit="saveInscripcion(event)">
                     
                     <!-- SELECCIÓN DEL GRUPO (PRIMERO Y DESTACADO) -->
@@ -1233,28 +1229,28 @@
                     </div>
                     
                     <div class="form-group">
-    <label style="color: #1e40af; font-weight: 700;">🔢 Número de Inscripción:</label>
-    <div style="position: relative;">
-        <input type="text" 
-               value="${inscripcion?.N_equipo || 'Autogenerado'}" 
-               readonly
-               style="background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%); 
-                      color: #1e40af; font-weight: 700; border: 2px solid #3b82f6; 
-                      text-align: center; font-size: 18px; cursor: not-allowed;
-                      box-shadow: inset 0 2px 4px rgba(59, 130, 246, 0.1);">
-        
-        <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); 
-                     color: #3b82f6; font-size: 18px;">🔒</span>
-    </div>
-    
-    <small style="color: #3b82f6; font-weight: 600; font-size: 12px; display: block; margin-top: 5px;">
-        ${inscripcion?.N_equipo 
-            ? '✅ Número asignado automáticamente - No modificable' 
-            : '🤖 Se generará automáticamente al confirmar la inscripción'}
-    </small>
-    
-    ${inscripcion?.N_equipo ? `<input type="hidden" name="N_equipo" value="${inscripcion.N_equipo}">` : ''}
-</div>
+                        <label style="color: #1e40af; font-weight: 700;">🔢 Número de Inscripción:</label>
+                        <div style="position: relative;">
+                            <input type="text" 
+                                   value="${inscripcion?.N_equipo || 'Autogenerado'}" 
+                                   readonly
+                                   style="background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%); 
+                                          color: #1e40af; font-weight: 700; border: 2px solid #3b82f6; 
+                                          text-align: center; font-size: 18px; cursor: not-allowed;
+                                          box-shadow: inset 0 2px 4px rgba(59, 130, 246, 0.1);">
+                            
+                            <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); 
+                                         color: #3b82f6; font-size: 18px;">🔒</span>
+                        </div>
+                        
+                        <small style="color: #1e40af; font-weight: 600; font-size: 12px; display: block; margin-top: 5px;">
+                            ${inscripcion?.N_equipo 
+                                ? '✅ Número asignado automáticamente - No modificable' 
+                                : '🤖 Se generará automáticamente al confirmar la inscripción'}
+                        </small>
+                        
+                        ${inscripcion?.N_equipo ? `<input type="hidden" name="N_equipo" value="${inscripcion.N_equipo}">` : ''}
+                    </div>
                     
                     <div class="form-group">
                         <label>Tipo de Participante:</label>
@@ -1326,10 +1322,7 @@
                     
                     <div class="form-group">
                         <label>Email:</label>
-                        <input type="email" name="email" value="${inscripcion?.email || ''}" required 
-                               style="border: 2px solid #3182ce; background: #ebf8ff;"
-                               ${!isEdit ? 'placeholder="Se enviará código de verificación a este email"' : ''}>
-                        ${!isEdit ? '<small style="color: #3182ce; font-weight: 600;">📧 Recibirá un código de verificación en este email</small>' : ''}
+                        <input type="email" name="email" value="${inscripcion?.email || ''}" required>
                     </div>
                     
                     <div class="form-group">
@@ -1419,7 +1412,7 @@
                     <div class="form-buttons">
                         <button type="button" class="btn btn-danger" onclick="hideAllForms()">Cancelar</button>
                         <button type="submit" class="btn ${isEdit ? 'btn-warning' : 'btn-success'}" style="font-size: 16px; padding: 12px 24px;">
-                            ${isEdit ? '✏️ Actualizar Inscripción' : '📧 Enviar Código de Verificación'}
+                            ${isEdit ? '✏️ Actualizar Inscripción' : '✅ Guardar Inscripción (Sin Verificación)'}
                         </button>
                     </div>
                 </form>
@@ -1481,7 +1474,7 @@
             }
         }
 
-        // Función actualizada para guardar inscripción con verificación
+        // 🎯 FUNCIÓN PARA ADMIN: Guardar directo sin verificación
         async function saveInscripcion(event) {
             event.preventDefault();
             
@@ -1498,7 +1491,7 @@
                 if (!data.N_equipo) delete data.N_equipo;
                 if (!data.observaciones) delete data.observaciones;
                 
-                console.log('📝 Procesando inscripción:', { ...data, dni: '[OCULTO]' });
+                console.log('📝 Procesando inscripción desde ADMIN:', { ...data, dni: '[OCULTO]' });
                 
                 if (editingId) {
                     // === ACTUALIZACIÓN (sin verificación) ===
@@ -1522,7 +1515,7 @@
                         }
                     }
                 } else {
-                    // === INSCRIPCIÓN NUEVA (con verificación por email) ===
+                    // === INSCRIPCIÓN NUEVA DESDE ADMIN (SIN VERIFICACIÓN) ===
                     
                     // Validar campos obligatorios antes de continuar
                     if (!data.grupo || !data.nombres || !data.apellidos || !data.email) {
@@ -1530,32 +1523,31 @@
                         return;
                     }
                     
-                    // Almacenar datos temporalmente
-                    inscripcionTemporal = data;
+                    // 🎯 GRABAR DIRECTAMENTE EN LA BASE DE DATOS (sin verificación)
+                    const response = await fetch('/api/inscripciones', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
                     
-                    // Generar código de verificación (6 dígitos)
-                    //codigoVerificacion = Math.floor(100000 + Math.random() * 900000).toString();
+                    const result = await response.json();
                     
-                    // ✅ REEMPLAZAR con llamada a API real:
-                      // ✅ REEMPLAZAR POR:
-                        const envioResult = await enviarCodigoVerificacion(data.email, data);
-
-                        if (envioResult.success) {
-                            // Almacenar datos temporalmente
-                            inscripcionTemporal = data;
-                            
-                            // Ocultar formulario y mostrar verificación
-                            hideAllForms();
-                            setTimeout(() => {
-                                showCodigoVerificacionModal(data.email, envioResult.devCode);
-                            }, 1000);
-                        } else {
-                            throw new Error('Error enviando código de verificación');
+                    if (response.ok) {
+                        showMessage('✅ Inscripción creada exitosamente desde Admin', 'success');
+                        hideAllForms();
+                        
+                        // Mostrar modal de éxito sin verificación
+                        showSuccessModalAdmin(result.data || result.inscripcion);
+                        
+                        // Recargar datos
+                        loadInscripciones();
+                        loadInscripcionesStats();
+                    } else {
+                        showMessage('Error: ' + (result.message || result.error || 'Error desconocido'), 'error');
+                        if (result.errors && Array.isArray(result.errors)) {
+                            result.errors.forEach(error => showMessage('• ' + error, 'error'));
                         }
-                    
-                    // Ocultar formulario actual y mostrar verificación
-                    hideAllForms();
-                    showCodigoVerificacionModal(data.email);
+                    }
                 }
                 
             } catch (error) {
@@ -1567,248 +1559,34 @@
             }
         }
 
-        
-
-        // Modal para ingresar código de verificación
-        function showCodigoVerificacionModal(email) {
-            const modalContent = `
-                <div style="text-align: center; padding: 20px;">
-                    <div style="font-size: 4rem; margin-bottom: 20px;">📧</div>
-                    <h3 style="color: #8b5a3c; margin-bottom: 15px;">Verificación por Email</h3>
-                    <p style="margin-bottom: 20px; line-height: 1.6;">
-                        Se ha enviado un código de verificación al email:<br>
-                        <strong style="color: #3182ce; font-size: 1.1rem;">${email}</strong>
-                    </p>
-                    <p style="margin-bottom: 25px; color: #718096;">
-                        Por favor, revise su bandeja de entrada y digite el código de 6 dígitos para confirmar su inscripción.
-                    </p>
-                    
-                    <form onsubmit="verificarCodigo(event)" style="max-width: 300px; margin: 0 auto;">
-                        <div style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568;">
-                                Código de Verificación:
-                            </label>
-                            <input type="text" id="codigoInput" maxlength="6" required
-                                   style="width: 100%; padding: 15px; font-size: 1.5rem; text-align: center; 
-                                          letter-spacing: 0.5em; border: 2px solid #8b5a3c; border-radius: 8px;
-                                          font-weight: 700; color: #8b5a3c;"
-                                   placeholder="000000" 
-                                   pattern="[0-9]{6}"
-                                   autocomplete="off">
-                            <small style="color: #718096; font-size: 12px; margin-top: 5px; display: block;">
-                                Solo números, 6 dígitos
-                            </small>
-                        </div>
-                        
-                        <div style="display: flex; gap: 12px; justify-content: center;">
-                            <button type="button" class="btn btn-danger" onclick="cancelarVerificacion()" 
-                                    style="padding: 12px 20px;">
-                                ❌ Cancelar
-                            </button>
-                            <button type="submit" class="btn btn-success" 
-                                    style="padding: 12px 20px; font-weight: 600;">
-                                ✅ Verificar y Guardar
-                            </button>
-                        </div>
-                    </form>
-                    
-                    <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
-                        <p style="color: #718096; font-size: 14px; margin-bottom: 10px;">
-                            ¿No recibió el código?
-                        </p>
-                        <button type="button" class="btn" onclick="reenviarCodigo('${email}')"
-                                style="background: #f7fafc; color: #4a5568; padding: 8px 16px; font-size: 13px;">
-                            📤 Reenviar código
-                        </button>
-                    </div>
-                    
-                    <!-- Mostrar el código en desarrollo (quitar en producción) -->
-                    <div style="margin-top: 20px; padding: 10px; background: #fff3cd; border-radius: 8px; border: 1px solid #ffeaa7;">
-                        <small style="color: #856404;">
-                            <strong>🔧 MODO DESARROLLO:</strong> Código: <span style="font-family: monospace; font-size: 1.2em;">${codigoVerificacion}</span>
-                        </small>
-                    </div>
-                </div>
-            `;
-            
-            showFormModal(modalContent);
-            
-            // Enfocar el input del código
-            setTimeout(() => {
-                const codigoInput = document.getElementById('codigoInput');
-                if (codigoInput) {
-                    codigoInput.focus();
-                    
-                    // Formatear input automáticamente
-                    codigoInput.addEventListener('input', function(e) {
-                        // Solo permitir números
-                        e.target.value = e.target.value.replace(/[^0-9]/g, '');
-                        
-                        // Auto-enviar cuando llegue a 6 dígitos
-                        if (e.target.value.length === 6) {
-                            setTimeout(() => {
-                                const form = e.target.closest('form');
-                                if (form) {
-                                    form.dispatchEvent(new Event('submit'));
-                                }
-                            }, 500);
-                        }
-                    });
-                }
-            }, 100);
-        }
-
-        // Verificar código ingresado
-        async function verificarCodigo(event) {
-            event.preventDefault();
-            
-            const codigoIngresado = document.getElementById('codigoInput').value.trim();
-            const submitBtn = event.target.querySelector('button[type="submit"]');
-            
-            if (!codigoIngresado || codigoIngresado.length !== 6) {
-                showMessage('Por favor ingrese un código de 6 dígitos', 'error');
-                return;
-            }
-            
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Verificando...';
-            
-            try {
-                // Verificar código
-                console.log('Buscando email:', email);
-                console.log('Participant encontrado:', participant);
-                console.log('Código guardado:', participant?.codigoVerificacion?.codigo);
-                console.log('Código recibido del frontend:', codigoIngresado);
-
-
-              //  if (codigoIngresado === codigoVerificacion) {
-                    console.log('✅ Código verificado correctamente');
-                    
-                    // Ahora sí guardar la inscripción en la base de datos
-                    const response = await fetch('/api/inscripciones/verificar-codigo', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(inscripcionTemporal)
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (response.ok) {
-                        // Éxito total
-                        hideAllForms();
-                        showSuccessModal(result.data);
-                        
-                        // Limpiar datos temporales
-                        inscripcionTemporal = null;
-                        codigoVerificacion = null;
-                        
-                        // Recargar datos
-                        loadInscripciones();
-                        loadInscripcionesStats();
-                        
-                    } else {
-                        // Error al guardar en BD
-                        showMessage('Error guardando inscripción: ' + (result.message || result.error), 'error');
-                        if (result.errors && Array.isArray(result.errors)) {
-                            result.errors.forEach(error => showMessage('• ' + error, 'error'));
-                        }
-                    }
-                
-            } catch (error) {
-                console.error('❌ Error verificando código:', error);
-                showMessage('Error de conexión: ' + error.message, 'error');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = '✅ Verificar y Guardar';
-            }
-        }
-
-        // Reenviar código
-        async function reenviarCodigo(email) {
-            try {
-                // Generar nuevo código
-                codigoVerificacion = Math.floor(100000 + Math.random() * 900000).toString();
-                
-                //  reenvío
-                const envioResult = await enviarCodigoVerificacion(email, inscripcionTemporal);
-
-                if (envioResult.success) {
-                    showMessage('📧 Código reenviado exitosamente', 'success');
-                    
-                    // Actualizar código mostrado en desarrollo
-                    if (envioResult.devCode) {
-                        window.devCode = envioResult.devCode;
-                        const devCodeElement = document.querySelector('[style*="MODO DESARROLLO"] span');
-                        if (devCodeElement) {
-                            devCodeElement.textContent = envioResult.devCode;
-                            devCodeElement.onclick = () => document.getElementById('codigoInput').value = envioResult.devCode;
-                        }
-                    }
-                } else {
-                    throw new Error('Error reenviando código');
-                }
-                
-                showMessage('📧 Código reenviado exitosamente', 'success');
-                
-                // Actualizar código mostrado en desarrollo
-                const devCodeElement = document.querySelector('[style*="MODO DESARROLLO"] span');
-                if (devCodeElement) {
-                    devCodeElement.textContent = codigoVerificacion;
-                }
-                
-                // Limpiar y enfocar input
-                const codigoInput = document.getElementById('codigoInput');
-                if (codigoInput) {
-                    codigoInput.value = '';
-                    codigoInput.focus();
-                }
-                
-            } catch (error) {
-                console.error('❌ Error reenviando código:', error);
-                showMessage('Error reenviando código: ' + error.message, 'error');
-            }
-        }
-
-        // Cancelar proceso de verificación
-        function cancelarVerificacion() {
-            if (confirm('¿Está seguro de cancelar la inscripción?\n\nDeberá completar el formulario nuevamente.')) {
-                // Limpiar datos temporales
-                inscripcionTemporal = null;
-                codigoVerificacion = null;
-                
-                hideAllForms();
-                showMessage('Inscripción cancelada', 'success');
-            }
-        }
-
-        // Modal de éxito after verification
-        function showSuccessModal(inscripcionData) {
+        // 🎯 Modal de éxito para Admin (sin verificación)
+        function showSuccessModalAdmin(inscripcionData) {
             const modalContent = `
                 <div style="text-align: center; padding: 30px;">
-                    <div style="font-size: 5rem; margin-bottom: 20px;">🎉</div>
-                    <h3 style="color: #48bb78; margin-bottom: 15px;">¡Inscripción Exitosa!</h3>
+                    <div style="font-size: 5rem; margin-bottom: 20px;">✅</div>
+                    <h3 style="color: #48bb78; margin-bottom: 15px;">¡Inscripción Creada desde Admin!</h3>
                     
                     <div style="background: #f0fff4; border: 2px solid #48bb78; border-radius: 12px; padding: 20px; margin: 20px 0;">
-                        <h4 style="color: #22543d; margin-bottom: 15px;">📋 Datos de su inscripción:</h4>
+                        <h4 style="color: #22543d; margin-bottom: 15px;">📋 Datos registrados:</h4>
                         <div style="text-align: left; max-width: 400px; margin: 0 auto;">
-                            <strong>🔢 Número de Inscripción:</strong> ${inscripcionData.N_equipo || inscripcionData.NRO}<br>
+                            <strong>🔢 Número:</strong> ${inscripcionData.N_equipo || inscripcionData.NRO}<br>
                             <strong>👤 Participante:</strong> ${inscripcionData.nombreCompleto || (inscripcionData.nombres + ' ' + inscripcionData.apellidos)}<br>
                             <strong>🏁 Tipo:</strong> ${inscripcionData.tripulante}<br>
                             <strong>📻 Grupo:</strong> ${inscripcionData.grupo}<br>
-                            <strong>📡 Frecuencia:</strong> ${inscripcionData.frecuencia} MHz<br>
-                            <strong>📅 Llegada:</strong> ${inscripcionData.diaLlegada}<br>
+                            <strong>📧 Email:</strong> ${inscripcionData.email}<br>
                             <strong>✅ Estado:</strong> ${inscripcionData.estado}
                         </div>
                     </div>
                     
                     <p style="color: #718096; margin: 20px 0; line-height: 1.6;">
-                        Su inscripción ha sido registrada exitosamente. Recibirá un email de confirmación con todos los detalles del evento.
+                        <strong>📝 Registro administrativo completado.</strong><br>
+                        No se requiere verificación por email.
                     </p>
                     
                     <div style="display: flex; gap: 12px; justify-content: center; margin-top: 25px;">
                         <button type="button" class="btn btn-success" onclick="hideAllForms()" 
                                 style="padding: 12px 24px; font-weight: 600;">
-                            🏁 ¡Perfecto!
+                            👍 Perfecto
                         </button>
                         <button type="button" class="btn btn-primary" onclick="showInscripcionForm()" 
                                 style="padding: 12px 24px;">
@@ -2164,40 +1942,6 @@
                 hideAllForms();
             }
         });
-       // ✅ AGREGAR esta función (del artifact anterior):
-async function enviarCodigoVerificacion(email, datosInscripcion) {
-    try {
-        console.log('📧 Enviando código REAL a:', email);
-        
-        const response = await fetch('/api/inscripciones/enviar-codigo', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: email,
-                datosInscripcion: datosInscripcion
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (response.ok) {
-            console.log('✅ Código enviado exitosamente');
-            return {
-                success: true,
-                message: 'Código enviado exitosamente',
-                devCode: result.debug?.codigo
-            };
-        } else {
-            throw new Error(result.message || 'Error enviando código');
-        }
-        
-    } catch (error) {
-        console.error('❌ Error enviando código:', error);
-        throw error;
-    }
-} 
     </script>
 </body>
 </html>
