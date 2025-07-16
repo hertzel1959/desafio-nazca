@@ -93,6 +93,20 @@ class EmailService {
         }
     }
 
+     // 🎯 AGREGAR ESTE MÉTODO:
+    async verificarConexion() {
+        // Alias en español para verifyConnection
+        return await this.verifyConnection();
+    }
+
+    // 🎯 TAMBIÉN AGREGAR ESTE MÉTODO DE INICIALIZACIÓN:
+    async inicializar() {
+        if (!this.initialized) {
+            await this.initTransporter();
+        }
+        return this.isReady();
+    }
+
     async enviarCodigoVerificacion(email, codigo, datosInscripcion) {
         if (!this.isReady()) {
             throw new Error('Servicio de email no disponible');
@@ -296,6 +310,8 @@ class EmailService {
         </html>
         `;
     }
+
+    
 }
 
 module.exports = new EmailService();
