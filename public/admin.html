@@ -1475,90 +1475,99 @@
         }
 
         // 🎯 FUNCIÓN PARA ADMIN: Guardar directo sin verificación
-        async function saveInscripcion(event) {
-            event.preventDefault();
+   // 🎯 REEMPLAZA esta función en admin-public.html:
+
+async function saveInscripcion(event) {
+    event.preventDefault();
+    
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Procesando...';
+    
+    try {
+        const formData = new FormData(event.target);
+        const data = Object.fromEntries(formData.entries());
+        
+        // Limpiar campos opcionales vacíos
+        if (!data.N_equipo) delete data.N_equipo;
+        if (!data.observaciones) delete data.observaciones;
+        
+        console.log('📝 ADMIN: Procesando inscripción directa:', { ...data, dni: '[OCULTO]' });
+        
+        if (editingId) {
+            // === ACTUALIZACIÓN (sin verificación) ===
+            const response = await fetch(`/api/inscripciones/${editingId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
             
-            const submitBtn = event.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.textContent;
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Procesando...';
+            const result = await response.json();
             
-            try {
-                const formData = new FormData(event.target);
-                const data = Object.fromEntries(formData.entries());
-                
-                // Limpiar campos opcionales vacíos
-                if (!data.N_equipo) delete data.N_equipo;
-                if (!data.observaciones) delete data.observaciones;
-                
-                console.log('📝 Procesando inscripción desde ADMIN:', { ...data, dni: '[OCULTO]' });
-                
-                if (editingId) {
-                    // === ACTUALIZACIÓN (sin verificación) ===
-                    const response = await fetch(`/api/inscripciones/${editingId}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (response.ok) {
-                        showMessage('Inscripción actualizada exitosamente', 'success');
-                        hideAllForms();
-                        loadInscripciones();
-                        loadInscripcionesStats();
-                    } else {
-                        showMessage('Error: ' + (result.message || result.error || 'Error desconocido'), 'error');
-                        if (result.errors && Array.isArray(result.errors)) {
-                            result.errors.forEach(error => showMessage('• ' + error, 'error'));
-                        }
-                    }
-                } else {
-                    // === INSCRIPCIÓN NUEVA DESDE ADMIN (SIN VERIFICACIÓN) ===
-                    
-                    // Validar campos obligatorios antes de continuar
-                    if (!data.grupo || !data.nombres || !data.apellidos || !data.email) {
-                        showMessage('Por favor complete todos los campos obligatorios', 'error');
-                        return;
-                    }
-                    
-                    // 🎯 GRABAR DIRECTAMENTE EN LA BASE DE DATOS (sin verificación)
-                    const response = await fetch('/api/inscripciones', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (response.ok) {
-                        showMessage('✅ Inscripción creada exitosamente desde Admin', 'success');
-                        hideAllForms();
-                        
-                        // Mostrar modal de éxito sin verificación
-                        showSuccessModalAdmin(result.data || result.inscripcion);
-                        
-                        // Recargar datos
-                        loadInscripciones();
-                        loadInscripcionesStats();
-                    } else {
-                        showMessage('Error: ' + (result.message || result.error || 'Error desconocido'), 'error');
-                        if (result.errors && Array.isArray(result.errors)) {
-                            result.errors.forEach(error => showMessage('• ' + error, 'error'));
-                        }
-                    }
+            if (response.ok) {
+                showMessage('✅ Inscripción actualizada exitosamente', 'success');
+                hideAllForms();
+                loadInscripciones();
+                loadInscripcionesStats();
+            } else {
+                showMessage('❌ Error: ' + (result.message || result.error || 'Error desconocido'), 'error');
+                if (result.errors && Array.isArray(result.errors)) {
+                    result.errors.forEach(error => showMessage('• ' + error, 'error'));
                 }
+            }
+        } else {
+            // === INSCRIPCIÓN NUEVA DESDE ADMIN (SIN VERIFICACIÓN) ===
+            
+            // Validar campos obligatorios antes de continuar
+            if (!data.grupo || !data.nombres || !data.apellidos || !data.email) {
+                showMessage('❌ Por favor complete todos los campos obligatorios', 'error');
+                return;
+            }
+            
+            // 🎯 ADMIN: GRABADO DIRECTO EN LA BASE DE DATOS (sin emails)
+            console.log('🎯 ADMIN: Grabando directamente en BD sin verificación');
+            
+            const response = await fetch('/api/inscripciones', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...data,
+                    // Asegurar que el backend sepa que es desde admin
+                    source: 'admin'
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                console.log('✅ ADMIN: Inscripción guardada exitosamente');
+                showMessage('✅ Inscripción creada exitosamente desde Admin', 'success');
+                hideAllForms();
                 
-            } catch (error) {
-                console.error('❌ Error procesando inscripción:', error);
-                showMessage('Error de conexión: ' + error.message, 'error');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
+                // Mostrar modal de éxito sin verificación
+                showSuccessModalAdmin(result.data || result.inscripcion);
+                
+                // Recargar datos
+                loadInscripciones();
+                loadInscripcionesStats();
+            } else {
+                console.error('❌ ADMIN: Error del servidor:', result);
+                showMessage('❌ Error: ' + (result.message || result.error || 'Error desconocido'), 'error');
+                if (result.errors && Array.isArray(result.errors)) {
+                    result.errors.forEach(error => showMessage('• ' + error, 'error'));
+                }
             }
         }
-
+        
+    } catch (error) {
+        console.error('❌ ADMIN: Error procesando inscripción:', error);
+        showMessage('❌ Error de conexión: ' + error.message, 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+    }
+}
         // 🎯 Modal de éxito para Admin (sin verificación)
         function showSuccessModalAdmin(inscripcionData) {
             const modalContent = `

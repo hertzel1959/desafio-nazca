@@ -5,7 +5,8 @@ const router = express.Router();
 const Inscripcion = require('../models/Inscripcion');
 const FrecuenciaGrupo = require('../models/FrecuenciaGrupo');
 const emailService = require('../../server/services/emailService');
-global.codigosVerificacion = global.codigosVerificacion || new Map(); // <-- TAMBIÉN AQUÍ
+global.codigosVerificacion = global.codigosVerificacion || new Map();
+
 // GET /api/inscripciones - Obtener todas las inscripciones
 router.get('/', async (req, res) => {
     try {
@@ -41,9 +42,13 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// POST /api/inscripciones - Crear nueva inscripción
+// ===============================
+// 🎯 POST /api/inscripciones - ADMIN: Grabado DIRECTO sin verificación
+// ===============================
 router.post('/', async (req, res) => {
     try {
+        console.log('📝 ADMIN: Creando inscripción directa sin verificación');
+        
         const {
             tripulante, nombres, apellidos, edad, experiencia, grupoSanguineo,
             dni, email, celular, personaContacto, celularContacto,
@@ -81,7 +86,7 @@ router.post('/', async (req, res) => {
         const totalInscripciones = await Inscripcion.countDocuments({ activo: true });
         const numeroGrupo = totalInscripciones + 1;
 
-        // Crear nueva inscripción
+        // 🎯 CREAR INSCRIPCIÓN DIRECTAMENTE (ADMIN)
         const nuevaInscripcion = new Inscripcion({
             tripulante,
             nombres: nombres.trim(),
@@ -108,13 +113,16 @@ router.post('/', async (req, res) => {
 
         const inscripcionGuardada = await nuevaInscripcion.save();
         
+        console.log('✅ ADMIN: Inscripción creada directamente:', inscripcionGuardada.N_equipo || inscripcionGuardada.NRO);
+        
         res.status(201).json({
-            message: 'Inscripción creada exitosamente',
-            inscripcion: inscripcionGuardada
+            message: 'Inscripción creada exitosamente desde Admin',
+            inscripcion: inscripcionGuardada,
+            data: inscripcionGuardada
         });
 
     } catch (error) {
-        console.error('Error creando inscripción:', error);
+        console.error('❌ Error creando inscripción directa:', error);
         
         // Manejar errores de validación de Mongoose
         if (error.name === 'ValidationError') {
@@ -275,16 +283,18 @@ router.get('/estadisticas/resumen', async (req, res) => {
     }
 });
 
+// ===============================
+// 🌐 PÚBLICO: Endpoints para verificación por email
+// ===============================
 
 // ===============================
-// AGREGAR ESTOS ENDPOINTS A TU routes/inscripciones.js EXISTENTE
+// ENDPOINT: Enviar código de verificación (SOLO PÚBLICO)
 // ===============================
-
 router.post('/enviar-codigo', async (req, res) => {
     try {
         const { email, datosInscripcion } = req.body;
         
-        console.log('📧 Solicitando código para:', email);
+        console.log('📧 PÚBLICO: Enviando código de verificación a:', email);
         
         // Validar datos básicos
         if (!email || !datosInscripcion) {
@@ -309,7 +319,7 @@ router.post('/enviar-codigo', async (req, res) => {
         // Enviar email con el código
         await emailService.enviarCodigoVerificacion(email, codigo, datosInscripcion);
         
-        console.log('✅ Código enviado exitosamente a:', email);
+        console.log('✅ PÚBLICO: Código enviado exitosamente a:', email);
         
         res.json({
             success: true,
@@ -329,13 +339,13 @@ router.post('/enviar-codigo', async (req, res) => {
 });
 
 // ===============================
-// ENDPOINT: Verificar código y guardar inscripción
+// ENDPOINT: Verificar código y guardar inscripción (SOLO PÚBLICO)
 // ===============================
 router.post('/verificar-codigo', async (req, res) => {
     try {
         const { email, codigo, datosInscripcion } = req.body;
         
-        console.log('🔍 Verificando código para:', email);
+        console.log('🔍 PÚBLICO: Verificando código para:', email);
         
         // Validar parámetros
         if (!email || !codigo || !datosInscripcion) {
@@ -382,14 +392,52 @@ router.post('/verificar-codigo', async (req, res) => {
             });
         }
         
-        console.log('✅ Código verificado correctamente');
+        console.log('✅ PÚBLICO: Código verificado correctamente');
         
         // 🎯 CÓDIGO CORRECTO - GUARDAR INSCRIPCIÓN EN LA BASE DE DATOS
         try {
-            const nuevaInscripcion = new Inscripcion(datosInscripcion);
+            // Validar DNI único antes de crear
+            const existeDNI = await Inscripcion.findOne({ 
+                dni: datosInscripcion.dni, 
+                activo: true 
+            });
+            if (existeDNI) {
+                global.codigosVerificacion.delete(email);
+                return res.status(400).json({
+                    success: false,
+                    message: 'Ya existe una inscripción con este DNI'
+                });
+            }
+
+            // Validar email único antes de crear
+            const existeEmail = await Inscripcion.findOne({ 
+                email: datosInscripcion.email, 
+                activo: true 
+            });
+            if (existeEmail) {
+                global.codigosVerificacion.delete(email);
+                return res.status(400).json({
+                    success: false,
+                    message: 'Ya existe una inscripción con este email'
+                });
+            }
+            
+            // Generar número de equipo automáticamente
+            const totalInscripciones = await Inscripcion.countDocuments({ activo: true });
+            const numeroEquipo = totalInscripciones + 1;
+            
+            // Preparar datos para la inscripción con numero generado
+            const datosCompletos = {
+                ...datosInscripcion,
+                N_equipo: numeroEquipo,
+                numeroGrupo: numeroEquipo,
+                activo: true
+            };
+            
+            const nuevaInscripcion = new Inscripcion(datosCompletos);
             await nuevaInscripcion.save();
             
-            console.log('✅ Inscripción guardada en DB:', nuevaInscripcion.N_equipo || nuevaInscripcion.NRO);
+            console.log('✅ PÚBLICO: Inscripción guardada en BD:', nuevaInscripcion.N_equipo || nuevaInscripcion.NRO);
             
             // 🎯 ENVIAR EMAIL DE CONFIRMACIÓN (segundo email)
             try {
@@ -445,9 +493,6 @@ router.post('/verificar-codigo', async (req, res) => {
 // ===============================
 router.get('/stats', async (req, res) => {
     try {
-        // Ajustar según tu implementación de base de datos
-        const Inscripcion = require('../models/Inscripcion'); // Ajustar ruta
-        
         const total = await Inscripcion.countDocuments({ activo: { $ne: false } });
         const confirmados = await Inscripcion.countDocuments({ 
             estado: 'CONFIRMADO', 
@@ -489,9 +534,6 @@ router.get('/stats', async (req, res) => {
 router.get('/equipo/:N_equipo', async (req, res) => {
     try {
         const { N_equipo } = req.params;
-        
-        // Ajustar según tu implementación de base de datos
-        const Inscripcion = require('../models/Inscripcion'); // Ajustar ruta
         
         const miembros = await Inscripcion.find({ 
             N_equipo: parseInt(N_equipo),

@@ -1435,46 +1435,81 @@
         }
 
         // Función para actualizar los campos separados del grupo
-        function updateGrupoDetails(selectElement) {
-            const selectedOption = selectElement.selectedOptions[0];
-            const frecuenciaInput = document.getElementById('grupoFrecuencia');
-            const liderInput = document.getElementById('grupoLider');
-            
-            if (selectedOption && selectedOption.value) {
-                const frecuencia = selectedOption.getAttribute('data-frecuencia');
-                const lider = selectedOption.getAttribute('data-lider');
-                
-                if (frecuenciaInput) {
-                    frecuenciaInput.value = frecuencia + ' MHz';
-                    frecuenciaInput.style.color = '#8b5a3c';
-                    frecuenciaInput.style.fontWeight = '700';
-                }
-                
-                if (liderInput) {
-                    liderInput.value = lider || 'Sin asignar';
-                    liderInput.style.color = lider ? '#8b5a3c' : '#a0aec0';
-                    liderInput.style.fontWeight = '600';
-                }
-                
-                selectElement.style.borderColor = '#48bb78';
-                selectElement.style.backgroundColor = '#f0fff4';
-                
-            } else {
-                if (frecuenciaInput) {
-                    frecuenciaInput.value = '';
-                    frecuenciaInput.style.color = '#a0aec0';
-                }
-                if (liderInput) {
-                    liderInput.value = '';
-                    liderInput.style.color = '#a0aec0';
-                }
-                
-                selectElement.style.borderColor = '#8b5a3c';
-                selectElement.style.backgroundColor = 'white';
-            }
+     // 🎯 REEMPLAZA ESTA FUNCIÓN en tu index:
+// 🎯 REEMPLAZA ESTA FUNCIÓN en tu index:
+function updateGrupoDetails(selectElement) {
+    const selectedOption = selectElement.selectedOptions[0];
+    const frecuenciaInput = document.getElementById('grupoFrecuencia');
+    const liderInput = document.getElementById('grupoLider');
+    
+    if (selectedOption && selectedOption.value) {
+        const frecuencia = selectedOption.getAttribute('data-frecuencia');
+        const lider = selectedOption.getAttribute('data-lider');
+        
+        if (frecuenciaInput) {
+            frecuenciaInput.value = frecuencia + ' MHz';
+            frecuenciaInput.style.color = '#8b5a3c';
+            frecuenciaInput.style.fontWeight = '700';
         }
+        
+        if (liderInput) {
+            liderInput.value = lider || 'Sin asignar';
+            liderInput.style.color = lider ? '#8b5a3c' : '#a0aec0';
+            liderInput.style.fontWeight = '600';
+        }
+        
+        // 🎯 CREAR/ACTUALIZAR CAMPOS HIDDEN PARA ENVÍO
+        let frecuenciaHidden = document.getElementById('frecuenciaHidden');
+        let contactoHidden = document.getElementById('contactoHidden');
+        
+        if (!frecuenciaHidden) {
+            frecuenciaHidden = document.createElement('input');
+            frecuenciaHidden.type = 'hidden';
+            frecuenciaHidden.id = 'frecuenciaHidden';
+            frecuenciaHidden.name = 'frecuencia';
+            selectElement.closest('form').appendChild(frecuenciaHidden);
+        }
+        
+        if (!contactoHidden) {
+            contactoHidden = document.createElement('input');
+            contactoHidden.type = 'hidden';
+            contactoHidden.id = 'contactoHidden';
+            contactoHidden.name = 'contacto';
+            selectElement.closest('form').appendChild(contactoHidden);
+        }
+        
+        // Asignar valores a los campos hidden
+        frecuenciaHidden.value = frecuencia;
+        contactoHidden.value = lider || '';
+        
+        selectElement.style.borderColor = '#48bb78';
+        selectElement.style.backgroundColor = '#f0fff4';
+        
+    } else {
+        if (frecuenciaInput) {
+            frecuenciaInput.value = '';
+            frecuenciaInput.style.color = '#a0aec0';
+        }
+        if (liderInput) {
+            liderInput.value = '';
+            liderInput.style.color = '#a0aec0';
+        }
+        
+        // Limpiar campos hidden
+        const frecuenciaHidden = document.getElementById('frecuenciaHidden');
+        const contactoHidden = document.getElementById('contactoHidden');
+        
+        if (frecuenciaHidden) frecuenciaHidden.value = '';
+        if (contactoHidden) contactoHidden.value = '';
+        
+        selectElement.style.borderColor = '#8b5a3c';
+        selectElement.style.backgroundColor = 'white';
+    }
+}
 
-        // Función para guardar inscripción con verificación
+
+
+// 🎯 FUNCIÓN CORREGIDA para guardar inscripción
         async function saveInscripcion(event) {
             event.preventDefault();
             
@@ -1501,20 +1536,38 @@
                 // Almacenar datos temporalmente
                 inscripcionTemporal = data;
                 
-                // Enviar código de verificación
-                const envioResult = await enviarCodigoVerificacion(data.email, data);
-
-                if (envioResult.success) {
-                    // Almacenar datos temporalmente
-                    inscripcionTemporal = data;
+                // 🎯 ENVIAR CÓDIGO DE VERIFICACIÓN
+                try {
+                    console.log('📧 Enviando código de verificación a:', data.email);
                     
-                    // Ocultar formulario y mostrar verificación
-                    hideAllForms();
-                    setTimeout(() => {
-                        showCodigoVerificacionModal(data.email, envioResult.devCode);
-                    }, 1000);
-                } else {
-                    throw new Error('Error enviando código de verificación');
+                    const response = await fetch('/api/inscripciones/enviar-codigo', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: data.email,
+                            datosInscripcion: data
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        console.log('✅ Código enviado exitosamente');
+                        
+                        // Ocultar formulario y mostrar verificación
+                        hideAllForms();
+                        setTimeout(() => {
+                            showCodigoVerificacionModal(data.email, result.debug?.codigo);
+                        }, 1000);
+                        
+                    } else {
+                        throw new Error(result.message || 'Error enviando código');
+                    }
+                } catch (emailError) {
+                    console.error('❌ Error enviando código:', emailError);
+                    showMessage('Error enviando código: ' + emailError.message, 'error');
                 }
                 
             } catch (error) {
@@ -1682,24 +1735,38 @@
                 submitBtn.textContent = '✅ Verificar y Guardar';
             }
         }
+
         // Reenviar código
         async function reenviarCodigo(email) {
             try {
-                const envioResult = await enviarCodigoVerificacion(email, inscripcionTemporal);
-
-                if (envioResult.success) {
+                console.log('📧 Reenviando código a:', email);
+                
+                const response = await fetch('/api/inscripciones/enviar-codigo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        datosInscripcion: inscripcionTemporal
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
                     showMessage('📧 Código reenviado exitosamente', 'success');
                     
                     // Actualizar código mostrado en desarrollo
-                    if (envioResult.devCode) {
+                    if (result.debug?.codigo) {
                         const devCodeElement = document.querySelector('[style*="MODO DESARROLLO"] span');
                         if (devCodeElement) {
-                            devCodeElement.textContent = envioResult.devCode;
-                            devCodeElement.onclick = () => document.getElementById('codigoInput').value = envioResult.devCode;
+                            devCodeElement.textContent = result.debug.codigo;
+                            devCodeElement.onclick = () => document.getElementById('codigoInput').value = result.debug.codigo;
                         }
                     }
                 } else {
-                    throw new Error('Error reenviando código');
+                    throw new Error(result.message || 'Error reenviando código');
                 }
                 
                 // Limpiar y enfocar input
@@ -1766,41 +1833,6 @@
             `;
             
             showFormModal(modalContent);
-        }
-
-        // Función para enviar código de verificación
-        async function enviarCodigoVerificacion(email, datosInscripcion) {
-            try {
-                console.log('📧 Enviando código de verificación a:', email);
-                
-                const response = await fetch('/api/inscripciones/enviar-codigo', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        datosInscripcion: datosInscripcion
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok) {
-                    console.log('✅ Código enviado exitosamente');
-                    return {
-                        success: true,
-                        message: 'Código enviado exitosamente',
-                        devCode: result.debug?.codigo
-                    };
-                } else {
-                    throw new Error(result.message || 'Error enviando código');
-                }
-                
-            } catch (error) {
-                console.error('❌ Error enviando código:', error);
-                throw error;
-            }
         }
 
         // ===============================
