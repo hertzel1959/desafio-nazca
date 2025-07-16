@@ -168,7 +168,8 @@ app.use('/api', indexRoutes);
 app.use('/api/registration', registrationLimiter, registrationRoutes);
 app.use('/api/admin', authMiddleware.requireAuth, adminRoutes);
 app.use('/api/frecuencias', frecuenciasRoutes);
-app.use('/api/inscripciones', inscripcionesRoutes);
+//app.use('/api/inscripciones', inscripcionesRoutes);
+ app.use('/api/inscripciones', inscripcionesRoutes); // nueva
 app.use('/api', testMailRoutes); // ← AGREGAR ESTA LÍNEA
 
 // Cambiar por:

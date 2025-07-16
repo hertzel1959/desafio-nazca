@@ -1635,7 +1635,8 @@
             
             try {
                 // Verificar código con la API
-                const response = await fetch('/api/inscripciones/verificar-codigo', {
+                //const response = await fetch('/api/inscripciones/verificar-codigo', {
+               const response = await fetch('/api/inscripciones/verificar-codigo', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
