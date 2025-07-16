@@ -339,7 +339,7 @@ router.post('/enviar-codigo', async (req, res) => {
         const codigo = Math.floor(100000 + Math.random() * 900000).toString();
         
         // Guardar código temporalmente (10 minutos de expiración)
-        global.codigosVerificacion.set(email, {
+        global.codigosVerificacion.set(email.toLowerCase().trim(), {
             codigo,
             timestamp: Date.now(),
             datosInscripcion,
@@ -387,8 +387,13 @@ router.post('/verificar-codigo', async (req, res) => {
         }
         
         // Buscar código almacenado
-        const datosVerificacion = global.codigosVerificacion.get(email);
-        
+        const datosVerificacion = global.codigosVerificacion.get(email.toLowerCase().trim());
+        console.log('🔍 DEBUG - Email buscado:', email.toLowerCase().trim());
+        console.log('🔍 DEBUG - Código recibido:', codigo);
+        console.log('🔍 DEBUG - Datos encontrados:', datosVerificacion ? 'SÍ' : 'NO');
+        if (datosVerificacion) {
+            console.log('🔍 DEBUG - Código guardado:', datosVerificacion.codigo);
+        }
         if (!datosVerificacion) {
             return res.status(400).json({
                 success: false,
@@ -398,7 +403,7 @@ router.post('/verificar-codigo', async (req, res) => {
         
         // Verificar expiración (10 minutos)
         if (Date.now() > datosVerificacion.expiresAt) {
-            global.codigosVerificacion.delete(email);
+            global.codigosVerificacion.delete(email.toLowerCase().trim());
             return res.status(400).json({
                 success: false,
                 message: 'Código expirado. Solicita uno nuevo.'
