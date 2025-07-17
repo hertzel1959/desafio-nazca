@@ -140,10 +140,11 @@ mongoose.connect(MONGODB_URI, {
     // Inicializar contadores
     console.log('🔢 Inicializando contadores...');
     await counterService.initCounter('frecuencias', 'NRO');
-    await counterService.initCounter('inscripciones', 'NRO');        // ← MOVER AQUÍ
-    //await counterService.initCounter('inscripciones', 'N_equipo');   // ← MOVER AQUÍ
+    // ❌ QUITAMOS inscripciones porque ahora usa RECNUMBER
+    // await counterService.initCounter('inscripciones', 'NRO');        
     console.log('✅ Contadores listos');
-     console.log(`📊 Próximo NRO: ${counterService.getCurrentValue('inscripciones', 'NRO')}`);
+    console.log('📊 Inscripciones usarán RECNUMBER (contador automático)');
+    
     // Verificar servicio de email
     console.log('📧 Verificando servicio de email...');
     const emailConectado = await emailService.verificarConexion();
@@ -153,10 +154,6 @@ mongoose.connect(MONGODB_URI, {
         console.log('⚠️ Email no configurado (revisar .env)');
     }
 })
-.catch((error) => {
-    console.error('❌ Error conectando a MongoDB:', error);
-    process.exit(1);
-});
 
 /**
  * RUTAS

@@ -171,12 +171,12 @@ const inscripcionSchema = new mongoose.Schema({
       values: ['miercoles','jueves', 'viernes', 'sabado'],
       message: 'Día de llegada debe ser: jueves, viernes o sabado'
     },
-    default: 'viernes' // Viernes como default más común
+    default: 'miercoles' // Viernes como default más común
   },
   estado: {
     type: String,
     enum: ['PENDIENTE', 'CONFIRMADO', 'CANCELADO'],
-    default: 'PENDIENTE'
+    default: 'CONFIRMADO'
   },
   observaciones: {
     type: String,
@@ -257,97 +257,80 @@ inscripcionSchema.methods.toAdminJSON = function() {
   return this.toPublicJSON();
 };
 
-// ✅ MIDDLEWARE PRE-SAVE CON RELACIÓN CORRECTA
+// ✅ MIDDLEWARE PRE-SAVE CON RECNUMBER
 inscripcionSchema.pre('save', async function(next) {
-  try {
-    console.log(`🔄 Pre-save Inscripción - isNew: ${this.isNew}, NRO actual: ${this.NRO}`);
-    
-    // ✅ 1. GENERAR NRO SECUENCIAL (solo para inscripciones)
-    if (this.isNew && !this.NRO) {
-      try {
-        // Verificar si el contador está inicializado
-        let currentNRO = counterService.getCurrentValue('inscripciones', 'NRO');
+    try {
+        console.log(`🔄 Pre-save Inscripción - isNew: ${this.isNew}, NRO actual: ${this.NRO}`);
         
-        // Si no está inicializado, inicializarlo
-        if (currentNRO === 0) {
-          console.log('🔧 Inicializando contador NRO...');
-          await counterService.initCounter('inscripciones', 'NRO');
+        // ✅ 1. GENERAR NRO BASADO EN REGISTROS ACTIVOS (RECNUMBER)
+        if (this.isNew && !this.NRO) {
+            const totalActivos = await this.constructor.countDocuments({ activo: true });
+            this.NRO = totalActivos + 1;
+            console.log(`🔢 RECNUMBER - NRO asignado: ${this.NRO} (basado en ${totalActivos} registros activos)`);
+        }
+
+        // ✅ 2. ASIGNAR N_EQUIPO BASADO EN EL GRUPO SELECCIONADO
+        if (this.isModified('grupo') && this.grupo) {
+            try {
+                const Frecuencia = mongoose.model('Frecuencia');
+                const frecuencia = await Frecuencia.findOne({ grupo: this.grupo });
+                
+                if (frecuencia) {
+                    this.N_equipo = frecuencia.NRO;
+                    this.frecuencia = frecuencia.frecuencia;
+                    this.frecuenciaGrupo = frecuencia.grupo;
+                    this.liderGrupo = frecuencia.contacto || '';
+                    
+                    console.log(`👥 N_equipo asignado: ${this.N_equipo} (NRO del grupo "${this.grupo}")`);
+                    console.log(`📻 Frecuencia asignada: ${frecuencia.frecuencia} MHz`);
+                } else {
+                    console.warn(`⚠️ No se encontró frecuencia para grupo: ${this.grupo}`);
+                    throw new Error(`Grupo "${this.grupo}" no existe en la tabla de frecuencias`);
+                }
+            } catch (frecError) {
+                console.error('❌ Error obteniendo datos del grupo:', frecError.message);
+                throw frecError;
+            }
+        }
+
+        // ✅ 3. SI ES NUEVO Y NO SE MODIFICÓ EL GRUPO, PERO YA TIENE GRUPO
+        if (this.isNew && !this.N_equipo && this.grupo) {
+            try {
+                const Frecuencia = mongoose.model('Frecuencia');
+                const frecuencia = await Frecuencia.findOne({ grupo: this.grupo });
+                
+                if (frecuencia) {
+                    this.N_equipo = frecuencia.NRO;
+                    this.frecuencia = frecuencia.frecuencia;
+                    this.frecuenciaGrupo = frecuencia.grupo;
+                    this.liderGrupo = frecuencia.contacto || '';
+                    
+                    console.log(`👥 N_equipo asignado (nuevo): ${this.N_equipo}`);
+                }
+            } catch (error) {
+                console.error('❌ Error asignando N_equipo para nuevo documento:', error);
+            }
+        }
+
+        // ✅ 4. NORMALIZAR DATOS
+        if (this.email) {
+            this.email = this.email.toLowerCase().trim();
         }
         
-        // Obtener siguiente valor secuencial
-        this.NRO = counterService.getNextValue('inscripciones', 'NRO');
-        console.log(`🔢 Asignando NRO secuencial: ${this.NRO}`);
-        
-      } catch (counterError) {
-        console.error('❌ Error obteniendo NRO:', counterError);
-        // ✅ FALLBACK: contar documentos existentes
-        const count = await this.constructor.countDocuments({ activo: true });
-        this.NRO = count + 1;
-        console.log(`🔢 Fallback NRO: ${this.NRO}`);
-      }
-    }
-
-    // ✅ 2. ASIGNAR N_EQUIPO BASADO EN EL GRUPO SELECCIONADO
-    if (this.isModified('grupo') && this.grupo) {
-      try {
-        const Frecuencia = mongoose.model('Frecuencia');
-        const frecuencia = await Frecuencia.findOne({ grupo: this.grupo });
-        
-        if (frecuencia) {
-          // 🎯 N_EQUIPO = NRO DEL GRUPO (no secuencial independiente)
-          this.N_equipo = frecuencia.NRO;
-          this.frecuencia = frecuencia.frecuencia;
-          this.frecuenciaGrupo = frecuencia.grupo;
-          this.liderGrupo = frecuencia.contacto || '';
-          
-          console.log(`👥 N_equipo asignado: ${this.N_equipo} (NRO del grupo "${this.grupo}")`);
-          console.log(`📻 Frecuencia asignada: ${frecuencia.frecuencia} MHz`);
-        } else {
-          console.warn(`⚠️ No se encontró frecuencia para grupo: ${this.grupo}`);
-          throw new Error(`Grupo "${this.grupo}" no existe en la tabla de frecuencias`);
+        if (this.dni) {
+            this.dni = this.dni.trim();
         }
-      } catch (frecError) {
-        console.error('❌ Error obteniendo datos del grupo:', frecError.message);
-        throw frecError; // Bloquear guardado si no existe el grupo
-      }
-    }
 
-    // ✅ 3. SI ES NUEVO Y NO SE MODIFICÓ EL GRUPO, PERO YA TIENE GRUPO
-    if (this.isNew && !this.N_equipo && this.grupo) {
-      try {
-        const Frecuencia = mongoose.model('Frecuencia');
-        const frecuencia = await Frecuencia.findOne({ grupo: this.grupo });
+        console.log(`✅ Pre-save completado: NRO=${this.NRO}, N_equipo=${this.N_equipo}, grupo=${this.grupo}`);
+        next();
         
-        if (frecuencia) {
-          this.N_equipo = frecuencia.NRO;
-          this.frecuencia = frecuencia.frecuencia;
-          this.frecuenciaGrupo = frecuencia.grupo;
-          this.liderGrupo = frecuencia.contacto || '';
-          
-          console.log(`👥 N_equipo asignado (nuevo): ${this.N_equipo}`);
-        }
-      } catch (error) {
-        console.error('❌ Error asignando N_equipo para nuevo documento:', error);
-      }
+    } catch (error) {
+        console.error('❌ Error crítico en pre-save:', error);
+        next(error);
     }
-
-    // ✅ 4. NORMALIZAR DATOS
-    if (this.email) {
-      this.email = this.email.toLowerCase().trim();
-    }
-    
-    if (this.dni) {
-      this.dni = this.dni.trim();
-    }
-
-    console.log(`✅ Pre-save completado: NRO=${this.NRO}, N_equipo=${this.N_equipo}, grupo=${this.grupo}`);
-    next();
-    
-  } catch (error) {
-    console.error('❌ Error crítico en pre-save:', error);
-    next(error);
-  }
 });
+
+
 // Middleware post-save para logging
 inscripcionSchema.post('save', function(doc) {
   console.log(`✅ Inscripción guardada: ${doc.nombres} ${doc.apellidos} (Equipo: ${doc.N_equipo}, ${doc.tripulante}, NRO: ${doc.NRO})`);

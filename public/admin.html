@@ -1603,7 +1603,7 @@ async function saveInscripcion(event) {
                     <div style="background: #f0fff4; border: 2px solid #48bb78; border-radius: 12px; padding: 20px; margin: 20px 0;">
                         <h4 style="color: #22543d; margin-bottom: 15px;">📋 Datos registrados:</h4>
                         <div style="text-align: left; max-width: 400px; margin: 0 auto;">
-                            <strong>🔢 Número:</strong> ${inscripcionData.N_equipo || inscripcionData.NRO}<br>
+                            <strong>🔢 Número:</strong> ${inscripcionData.NRO || inscripcionData.N_equipo}<br>
                             <strong>👤 Participante:</strong> ${inscripcionData.nombreCompleto || (inscripcionData.nombres + ' ' + inscripcionData.apellidos)}<br>
                             <strong>🏁 Tipo:</strong> ${inscripcionData.tripulante}<br>
                             <strong>📻 Grupo:</strong> ${inscripcionData.grupo}<br>
