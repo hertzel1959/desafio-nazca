@@ -119,16 +119,16 @@ const inscripcionSchema = new mongoose.Schema({
   },
   celularContacto: {
     type: String,
-    //required: [true, 'El celular de contacto es obligatorio'],
     required:false,
     trim: true,
     validate: {
-      validator: function(v) {
-        return /^[\+]?[0-9\s\-\(\)]{9,15}$/.test(v);
-      },
-      message: 'Formato de celular de contacto inválido'
+        validator: function(v) {
+            // Validación más permisiva: solo números, espacios y guiones
+            return !v || /^[\+]?[0-9\s\-\(\)]{7,20}$/.test(v);
+        },
+        message: 'Formato de celular de contacto inválido'
     }
-  },
+},
   tipoVehiculo: {
     type: String,
     required: [true, 'El tipo de vehículo es obligatorio'],
