@@ -187,15 +187,24 @@ router.put('/:id', async (req, res) => {
             return res.status(404).json({ message: 'Inscripción no encontrada' });
         }
 
-        // Validar DNI único (excluyendo el registro actual)
+        // Validar DNI único antes de crear (con normalización)
+        const dniNormalizado = datosInscripcion.dni ? datosInscripcion.dni.toString().trim() : '';
+        console.log('🔍 DEBUG - DNI a validar:', dniNormalizado);
+
         const existeDNI = await Inscripcion.findOne({ 
-            dni, 
-            activo: true, 
-            _id: { $ne: req.params.id } 
+            dni: dniNormalizado, 
+            activo: true 
         });
+
+        console.log('🔍 DEBUG - DNI duplicado encontrado:', existeDNI ? 'SÍ' : 'NO');
+
         if (existeDNI) {
-            return res.status(400).json({ 
-                message: 'Ya existe otra inscripción con este DNI' 
+            global.codigosVerificacion.delete(email.toLowerCase().trim());
+            console.log('❌ DNI duplicado detectado:', dniNormalizado);
+            return res.status(400).json({
+                success: false,
+                message: `El DNI ${dniNormalizado} ya está registrado en el sistema`,
+                action: 'duplicate_dni'
             });
         }
 
