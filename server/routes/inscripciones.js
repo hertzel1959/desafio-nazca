@@ -97,8 +97,8 @@ router.post('/enviar-codigo', async (req, res) => {
         res.json({
             success: true,
             message: 'Código enviado exitosamente',
-            //debug: process.env.NODE_ENV === 'development' ? { codigo } : undefined 
-            debug: process.env.NODE_ENV === 'production' ? { codigo } : undefined
+            debug: process.env.NODE_ENV === 'development' ? { codigo } : undefined 
+            //debug: process.env.NODE_ENV === 'production' ? { codigo } : undefined
         });
 
     } catch (error) {
