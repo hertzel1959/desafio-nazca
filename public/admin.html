@@ -1232,7 +1232,7 @@
                         <label style="color: #1e40af; font-weight: 700;">🔢 Número de Inscripción:</label>
                         <div style="position: relative;">
                             <input type="text" 
-                                   value="${inscripcion?.N_equipo || 'Autogenerado'}" 
+                                   value="${inscripcion?.NRO || 'Autogenerado'}" 
                                    readonly
                                    style="background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%); 
                                           color: #1e40af; font-weight: 700; border: 2px solid #3b82f6; 
@@ -1249,7 +1249,7 @@
                                 : '🤖 Se generará automáticamente al confirmar la inscripción'}
                         </small>
                         
-                        ${inscripcion?.N_equipo ? `<input type="hidden" name="N_equipo" value="${inscripcion.N_equipo}">` : ''}
+                        ${inscripcion?.N_equipo ? `<input type="hidden" name="N_equipo" value="${inscripcion.NRO}">` : ''}
                     </div>
                     
                     <div class="form-group">
