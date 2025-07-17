@@ -117,6 +117,8 @@ router.post('/enviar-codigo', async (req, res) => {
 router.post('/verificar-codigo', async (req, res) => {
     try {
         const { email, codigo } = req.body;
+        // Buscar código almacenado
+        const datosVerificacion = global.codigosVerificacion.get(email);
         
         console.log('🔍 Verificando código para:', email);
         console.log('Buscando email:', email);
@@ -137,8 +139,6 @@ router.post('/verificar-codigo', async (req, res) => {
             });
         }
         
-        // Buscar código almacenado
-        const datosVerificacion = global.codigosVerificacion.get(email);
         
         if (!datosVerificacion) {
             return res.status(400).json({
