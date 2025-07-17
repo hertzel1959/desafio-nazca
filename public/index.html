@@ -871,16 +871,432 @@
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        /* Modal de Disclaimer */
+        .disclaimer-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .disclaimer-content {
+            background: linear-gradient(135deg, #fff, #f8f9fa);
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .disclaimer-header {
+            background: linear-gradient(135deg, #D2691E, #CD853F);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 15px 15px 0 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .disclaimer-header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .disclaimer-header .subtitle {
+            margin: 8px 0 0 0;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .disclaimer-close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            background: rgba(255,255,255,0.2);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .disclaimer-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        .disclaimer-body {
+            padding: 30px;
+        }
+
+        .disclaimer-text {
+            background: #f8f9fa;
+            border-left: 4px solid #D2691E;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #2c3e50;
+            text-align: justify;
+        }
+
+        .disclaimer-checkbox-container {
+            background: #e8f5e8;
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .disclaimer-checkbox {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #155724;
+        }
+
+        .disclaimer-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #28a745;
+            cursor: pointer;
+        }
+
+        .disclaimer-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn-disclaimer {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 140px;
+        }
+
+        .btn-cancel {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .btn-accept {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-accept:hover:not(:disabled) {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-accept:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .warning-text {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+            color: #856404;
+            font-weight: bold;
+        }
+
+        .event-info {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 20px;
+            border-radius: 0 0 15px 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .event-info strong {
+            color: #f39c12;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .disclaimer-content {
+                margin: 5% auto;
+                width: 95%;
+            }
+            
+            .disclaimer-header {
+                padding: 20px;
+            }
+            
+            .disclaimer-header h2 {
+                font-size: 20px;
+            }
+            
+            .disclaimer-body {
+                padding: 20px;
+            }
+            
+            .disclaimer-buttons {
+                flex-direction: column;
+            }
+        }
+
     </style>
 </head>
 <body>
+            /* Modal de Disclaimer */
+        .disclaimer-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .disclaimer-content {
+            background: linear-gradient(135deg, #fff, #f8f9fa);
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .disclaimer-header {
+            background: linear-gradient(135deg, #D2691E, #CD853F);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 15px 15px 0 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .disclaimer-header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .disclaimer-header .subtitle {
+            margin: 8px 0 0 0;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .disclaimer-close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            background: rgba(255,255,255,0.2);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .disclaimer-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        .disclaimer-body {
+            padding: 30px;
+        }
+
+        .disclaimer-text {
+            background: #f8f9fa;
+            border-left: 4px solid #D2691E;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #2c3e50;
+            text-align: justify;
+        }
+
+        .disclaimer-checkbox-container {
+            background: #e8f5e8;
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .disclaimer-checkbox {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #155724;
+        }
+
+        .disclaimer-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #28a745;
+            cursor: pointer;
+        }
+
+        .disclaimer-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn-disclaimer {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 140px;
+        }
+
+        .btn-cancel {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .btn-accept {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-accept:hover:not(:disabled) {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-accept:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .warning-text {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+            color: #856404;
+            font-weight: bold;
+        }
+
+        .event-info {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 20px;
+            border-radius: 0 0 15px 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .event-info strong {
+            color: #f39c12;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .disclaimer-content {
+                margin: 5% auto;
+                width: 95%;
+            }
+            
+            .disclaimer-header {
+                padding: 20px;
+            }
+            
+            .disclaimer-header h2 {
+                font-size: 20px;
+            }
+            
+            .disclaimer-body {
+                padding: 20px;
+            }
+            
+            .disclaimer-buttons {
+                flex-direction: column;
+            }
+        }
+
 <div class="main-container fade-in">
 <!-- Header bar naranja como dunagrande.com -->
 <header class="header-bar">
 <div class="logo-text" id="logoAdmin">DUNA GRANDE</div>
 <nav>
 <ul class="nav-menu">
-<li><a href="#" onclick="abrirFormularioInscripcion()">🧑‍🤝‍🧑 Inscripciones</a>
+<li><a href="#" onclick="showDisclaimer()">🧑‍🤝‍🧑 Inscripciones</a>
 </li>
 <li><a href="#cronograma">📅 Cronograma</a></li>
 <li><a href="#requisitos">📋 Requisitos</a></li>
@@ -985,7 +1401,59 @@
 <div id="formContent"></div>
 </div>
 </div>
+<!-- Modal de Disclaimer -->
+<div id="disclaimerModal" class="disclaimer-modal">
+    <div class="disclaimer-content">
+        <!-- Header -->
+        <div class="disclaimer-header">
+            <span class="disclaimer-close" onclick="closeDisclaimer()">&times;</span>
+            <h2>⚠️ Términos y Condiciones</h2>
+            <p class="subtitle">Desafío Dunas de Nazca 2025</p>
+        </div>
 
+        <!-- Body -->
+        <div class="disclaimer-body">
+            <div class="warning-text">
+                <strong>⚠️ IMPORTANTE:</strong> Debe aceptar estos términos para continuar con su inscripción
+            </div>
+
+            <div class="disclaimer-text">
+                <strong>DECLARACIÓN DE RESPONSABILIDAD:</strong><br><br>
+                
+                Con mi presente inscripción al evento <strong>Desafío Dunas de Nazca 2025</strong>, desisto de cualquier proceso o denuncia a los organizadores como a cualquier persona o entidad que esté involucrada en el desarrollo del Evento citado. 
+                <br><br>
+                Declaro que participo de manera <strong>voluntaria y sin obligación</strong>. Conociendo los riesgos que implica el manejo deportivo dentro de los desiertos y terrenos donde se desarrollará el evento. 
+                <br><br>
+                Libero de toda responsabilidad a cualquier persona o entidad organizadora y a cualquier otro participante de cualquier accidente, producto de mi participación totalmente voluntaria. 
+                <br><br>
+                <strong>Y asumo la responsabilidad total sobre los ocupantes de mi vehículo.</strong>
+            </div>
+
+            <!-- Checkbox de aceptación -->
+            <div class="disclaimer-checkbox-container">
+                <div class="disclaimer-checkbox">
+                    <input type="checkbox" id="acceptTerms" onchange="toggleAcceptButton()">
+                    <label for="acceptTerms">✅ <strong>ACEPTO</strong> los términos y condiciones mencionados</label>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="disclaimer-buttons">
+                <button class="btn-disclaimer btn-cancel" onclick="closeDisclaimer()">
+                    ❌ No Acepto
+                </button>
+                <button class="btn-disclaimer btn-accept" id="acceptBtn" disabled onclick="acceptTermsAndProceed()">
+                    ✅ Acepto y Continuar
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer con info del evento -->
+        <div class="event-info">
+            📅 <strong>Fechas:</strong> 28, 29, 30, 31 de Agosto 2025 | 📍 <strong>Lugar:</strong> Dunas de Nazca, Perú
+        </div>
+    </div>
+</div>
 <script>
         // Variables globales para el sistema de inscripción
         let frecuenciasData = [];
@@ -1072,6 +1540,42 @@
             const modalHTML = `
                 <div class="admin-modal" id="adminModal">
                     <div class="admin-modal-content">
+                    <div class="disclaimer-body">
+                                <div class="warning-text">
+                                    <strong>⚠️ IMPORTANTE:</strong> Debe aceptar estos términos para continuar con su inscripción
+                                </div>
+                                <div class="disclaimer-text">
+                                    <strong>DECLARACIÓN DE RESPONSABILIDAD:</strong><br><br>
+                                    
+                                    Con mi presente inscripción al evento <strong>Desafío Dunas de Nazca 2025</strong>, desisto de cualquier proceso o denuncia a los organizadores como a cualquier persona o entidad que esté involucrada en el desarrollo del Evento citado. 
+                                    <br><br>
+                                    Declaro que participo de manera <strong>voluntaria y sin obligación</strong>. Conociendo los riesgos que implica el manejo deportivo dentro de los desiertos y terrenos donde se desarrollará el evento. 
+                                    <br><br>
+                                    Libero de toda responsabilidad a cualquier persona o entidad organizadora y a cualquier otro participante de cualquier accidente, producto de mi participación totalmente voluntaria. 
+                                    <br><br>
+                                    <strong>Y asumo la responsabilidad total sobre los ocupantes de mi vehículo.</strong>
+                                </div>
+
+                                <!-- Checkbox de aceptación -->
+                                <div class="disclaimer-checkbox-container">
+                                    <div class="disclaimer-checkbox">
+                                        <input type="checkbox" id="acceptTerms" onchange="toggleAcceptButton()">
+                                        <label for="acceptTerms">✅ <strong>ACEPTO</strong> los términos y condiciones mencionados</label>
+                                    </div>
+                                </div>
+
+                                <!-- Botones -->
+                                <div class="disclaimer-buttons">
+                                    <button class="btn-disclaimer btn-cancel" onclick="closeDisclaimer()">
+                                        ❌ No Acepto
+                                    </button>
+                                    <button class="btn-disclaimer btn-accept" id="acceptBtn" disabled onclick="acceptTermsAndProceed()">
+                                        ✅ Acepto y Continuar
+                                    </button>
+                                </div>
+                            </div>
+
+
                         <div class="admin-modal-header">
                             <h3>🔐 Acceso Administrador</h3>
                             <span class="admin-modal-close" id="closeModalBtn">&times;</span>
@@ -1973,5 +2477,79 @@ function updateGrupoDetails(selectElement) {
             }
         });
     </script>
+        
+
+        <!-- Footer con info del evento -->
+        <div class="event-info">
+            📅 <strong>Fechas:</strong> 29, 30, 31 de Agosto 2025 | 📍 <strong>Lugar:</strong> Dunas de Nazca, Perú
+        </div>
+    </div>
+</div>
+<script>
+// Mostrar modal de disclaimer
+function showDisclaimer() {
+    document.getElementById('disclaimerModal').style.display = 'block';
+    document.body.style.overflow = 'hidden'; // Bloquear scroll del body
+}
+
+// Cerrar modal de disclaimer
+function closeDisclaimer() {
+    document.getElementById('disclaimerModal').style.display = 'none';
+    document.body.style.overflow = 'auto'; // Restaurar scroll del body
+    
+    // Resetear checkbox y botón
+    document.getElementById('acceptTerms').checked = false;
+    toggleAcceptButton();
+}
+
+// Habilitar/deshabilitar botón de aceptar
+function toggleAcceptButton() {
+    const checkbox = document.getElementById('acceptTerms');
+    const acceptBtn = document.getElementById('acceptBtn');
+    
+    if (checkbox.checked) {
+        acceptBtn.disabled = false;
+        acceptBtn.style.background = '#28a745';
+    } else {
+        acceptBtn.disabled = true;
+        acceptBtn.style.background = '#6c757d';
+    }
+}
+
+acceptTermsAndProceed
+// 🎯 FUNCIÓN PARA ABRIR TU FORMULARIO DE INSCRIPCIÓN
+function openInscriptionForm() {
+    // REEMPLAZA ESTO CON TU LÓGICA ACTUAL
+    alert('✅ Términos aceptados! Ahora se abriría el formulario de inscripción');
+    
+    // Ejemplos de lo que puedes hacer:
+    // 1. Redirigir a otra página:
+    // window.location.href = '/inscription.html';
+    
+    // 2. Mostrar otro modal:
+    // document.getElementById('inscriptionModal').style.display = 'block';
+    
+    // 3. Hacer scroll a un formulario:
+    // document.getElementById('inscriptionForm').scrollIntoView();
+}
+
+// Cerrar modal con ESC
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeDisclaimer();
+    }
+});
+
+// Cerrar modal haciendo clic fuera del contenido
+document.getElementById('disclaimerModal').addEventListener('click', function(event) {
+    if (event.target === this) {
+        closeDisclaimer();
+    }
+});
+
+
+</script>
+
+
 </body>
 </html>

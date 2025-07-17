@@ -157,7 +157,7 @@ const inscripcionSchema = new mongoose.Schema({
     diaLlegada: {
         type: String,
         required: [true, 'El día de llegada es obligatorio'],
-        enum: ['JUEVES', 'VIERNES', 'SABADO'],
+        enum: ['MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'],
         trim: true
     },
 

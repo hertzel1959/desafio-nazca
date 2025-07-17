@@ -49,7 +49,7 @@ async function initDatabase() {
               },
               diaLlegada: {
                 bsonType: "string",
-                enum: ["jueves", "viernes", "sabado"]
+                enum: ["miercoles","jueves", "viernes", "sabado"]
               },
               estado: {
                 bsonType: "string",

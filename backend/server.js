@@ -95,7 +95,7 @@ const participantSchema = new mongoose.Schema({
     diaLlegada: {
         type: String,
         required: true,
-        enum: ['JUEVES', 'VIERNES', 'SABADO']
+        enum: ['MIERCOLES','JUEVES', 'VIERNES', 'SABADO']
     },
     
     // Metadata
