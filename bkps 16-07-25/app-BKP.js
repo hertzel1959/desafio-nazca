@@ -14,9 +14,7 @@ const path = require('path');
 const counterService = require('./services/counterService'); // ← LÍNEA AGREGADA
 // 1. IMPORTS (línea 12 aproximadamente) - AGREGAR:
 const inscripcionesRoutes = require('./routes/inscripciones');
-
 const emailService = require('./services/emailService'); // ← AGREGAR ESTA LÍNEA
-const testMailRoutes = require('../sendTestMail'); // ← AGREGAR ESTA LÍNEA
 require('dotenv').config();
 
 // Importar rutas
@@ -138,10 +136,9 @@ mongoose.connect(MONGODB_URI, {
     // Inicializar contadores
     console.log('🔢 Inicializando contadores...');
     await counterService.initCounter('frecuencias', 'NRO');
-    // ❌ QUITAMOS inscripciones porque ahora usa RECNUMBER
-    // await counterService.initCounter('inscripciones', 'NRO');        
+    await counterService.initCounter('inscripciones', 'NRO');        // ← MOVER AQUÍ
+    await counterService.initCounter('inscripciones', 'N_equipo');   // ← MOVER AQUÍ
     console.log('✅ Contadores listos');
-    console.log('📊 Inscripciones usarán RECNUMBER (contador automático)');
     
     // Verificar servicio de email
     console.log('📧 Verificando servicio de email...');
@@ -152,6 +149,10 @@ mongoose.connect(MONGODB_URI, {
         console.log('⚠️ Email no configurado (revisar .env)');
     }
 })
+.catch((error) => {
+    console.error('❌ Error conectando a MongoDB:', error);
+    process.exit(1);
+});
 
 /**
  * RUTAS
@@ -163,10 +164,7 @@ app.use('/api', indexRoutes);
 app.use('/api/registration', registrationLimiter, registrationRoutes);
 app.use('/api/admin', authMiddleware.requireAuth, adminRoutes);
 app.use('/api/frecuencias', frecuenciasRoutes);
-//app.use('/api/inscripciones', inscripcionesRoutes);
- app.use('/api/inscripciones', inscripcionesRoutes); // nueva
-app.use('/api', testMailRoutes); // ← AGREGAR ESTA LÍNEA
-
+app.use('/api/inscripciones', inscripcionesRoutes);
 // Cambiar por:
 //app.use('/api/inscripciones-evento', inscripcionesRoutes);
 
