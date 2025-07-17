@@ -120,7 +120,7 @@ router.post('/verificar-codigo', async (req, res) => {
         
         console.log('🔍 Verificando código para:', email);
         console.log('Buscando email:', email);
-        console.log('Código recibido del frontend:', codigoIngresado); 
+        console.log('Código recibido del frontend:', codigo); 
         console.log('🔍 DEBUG - Email buscado:', email.toLowerCase().trim());
         console.log('🔍 DEBUG - Código recibido:', codigo);
         console.log('🔍 DEBUG - Datos encontrados:', datosVerificacion ? 'SÍ' : 'NO');
