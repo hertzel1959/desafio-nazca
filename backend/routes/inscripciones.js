@@ -503,25 +503,53 @@ router.post('/verificar-codigo', async (req, res) => {
             });
             
         } catch (dbError) {
-            console.error('❌ Error guardando en base de datos:', dbError);
-            
-            // Manejar errores específicos de la base de datos
-            if (dbError.name === 'ValidationError') {
-                const errores = Object.values(dbError.errors).map(err => err.message);
-                return res.status(400).json({
-                    success: false,
-                    message: 'Error de validación',
-                    errors: errores
-                });
-            }
-            
-            // Error genérico de base de datos
-            return res.status(500).json({
+    console.error('❌ Error guardando en base de datos:', dbError);
+    
+    // 🎯 MANEJO DE ERRORES DE MONGODB DUPLICADOS
+    if (dbError.code === 11000) {
+        global.codigosVerificacion.delete(email.toLowerCase().trim());
+        
+        if (dbError.keyPattern?.dni) {
+            return res.status(400).json({
                 success: false,
-                message: 'Error guardando inscripción en la base de datos',
-                error: dbError.message
+                message: `El DNI ${dbError.keyValue.dni} ya está registrado en el sistema`,
+                action: 'duplicate_dni'
             });
         }
+        if (dbError.keyPattern?.email) {
+            return res.status(400).json({
+                success: false,
+                message: `El email ${dbError.keyValue.email} ya está registrado en el sistema`,
+                action: 'duplicate_email'
+            });
+        }
+        // Error de duplicado genérico
+        return res.status(400).json({
+            success: false,
+            message: 'Ya existe un registro con estos datos',
+            action: 'duplicate_data'
+        });
+    }
+    
+    // 🎯 MANEJO DE ERRORES DE VALIDACIÓN
+    if (dbError.name === 'ValidationError') {
+        const errores = Object.values(dbError.errors).map(err => err.message);
+        return res.status(400).json({
+            success: false,
+            message: 'Error de validación',
+            errors: errores,
+            action: 'validation_error'
+        });
+    }
+    
+    // 🎯 ERROR GENÉRICO
+    return res.status(500).json({
+        success: false,
+        message: 'Error guardando inscripción en la base de datos',
+        error: dbError.message,
+        action: 'server_error'
+    });
+}
         
     } catch (error) {
         console.error('❌ Error verificando código:', error);
