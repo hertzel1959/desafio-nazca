@@ -291,5 +291,29 @@ router.get('/test-email', async (req, res) => {
         });
     }
 });
+// ENDPOINT TEMPORAL PARA RESET
+router.post('/reset-counters', async (req, res) => {
+    try {
+        const counterService = require('../services/counterService'); // ← AJUSTAR RUTA
+        
+        console.log('🔄 Reseteando contadores...');
+        await counterService.resetCounter('inscripciones', 'NRO');
+        
+        console.log('✅ Contadores reseteados exitosamente');
+        res.json({ 
+            success: true, 
+            message: 'Contadores reseteados a 0',
+            nextValue: 1
+        });
+        
+    } catch (error) {
+        console.error('❌ Error reseteando contadores:', error);
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
+    }
+});
+
 
 module.exports = router;
