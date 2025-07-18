@@ -403,6 +403,236 @@
             background: rgba(255,255,255,0.1);
         }
 
+        /* Sección de Videos */
+        .videos-section {
+            padding: 50px 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .videos-section h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #8b5a3c;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .videos-section p {
+            text-align: center;
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+
+        .videos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .video-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+        }
+
+        .video-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #8b5a3c;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+
+        .video-card:hover .video-play-button {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .video-featured-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #FFD700;
+            color: #000;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .video-info {
+            padding: 20px;
+            color: #2d3748;
+        }
+
+        .video-title-public {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            line-height: 1.3;
+            color: #2d3748;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-description-public {
+            font-size: 14px;
+            color: #718096;
+            line-height: 1.4;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-meta {
+            font-size: 12px;
+            color: #a0aec0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .video-category {
+            background: #8b5a3c;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .video-views {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Modal de Video */
+        .video-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+        }
+
+        .video-modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 16px;
+            padding: 0;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .video-modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .video-modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #a0aec0;
+            font-weight: bold;
+            background: none;
+            border: none;
+            padding: 5px;
+            border-radius: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .video-modal-close:hover {
+            background: #f7fafc;
+            color: #e53e3e;
+        }
+
+        .video-modal-player {
+            width: 100%;
+            height: 400px;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-modal-player video {
+            width: 100%;
+            height: 100%;
+            outline: none;
+        }
+
+        .video-modal-info {
+            padding: 20px;
+        }
+
         /* Modal de inscripción */
         .form-overlay {
             position: fixed;
@@ -823,7 +1053,7 @@
             background-color: #f8f9fa;
             padding: 30px 20px;
             border-top: 3px solid #D2691E;
-            margin-top: 50px;
+            margin-top: 0;
             font-family: Arial, sans-serif;
             color: #333;
         }
@@ -1001,6 +1231,29 @@
             .evento-title {
                 font-size: 20px;
             }
+
+            .videos-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .video-card {
+                margin: 0 10px;
+            }
+            
+            .video-thumbnail {
+                height: 180px;
+            }
+            
+            .video-modal-content {
+                max-width: 95vw;
+                max-height: 95vh;
+                margin: 20px;
+            }
+            
+            .video-modal-player {
+                height: 250px;
+            }
         }
     </style>
 </head>
@@ -1012,6 +1265,7 @@
             <nav>
                 <ul class="nav-menu">
                     <li><a href="#" onclick="showDisclaimer()">🧑‍🤝‍🧑 Inscripciones</a></li>
+                    <li><a href="#videos" onclick="scrollToVideos()">🎥 Videos</a></li>
                     <li><a href="#cronograma">📅 Cronograma</a></li>
                     <li><a href="#requisitos">📋 Requisitos</a></li>
                     <li><a href="#organizacion">🏢 Organización</a></li>
@@ -1086,13 +1340,23 @@
             </div>
         </section>
 
+        <!-- Sección de Videos -->
+        <section class="videos-section" id="videosSection" style="display: none;">
+            <h2>🎥 GALERÍA DE VIDEOS</h2>
+            <p>Revive los mejores momentos del Desafío Dunas de Nazca</p>
+            <div id="videosPublicos" class="videos-grid">
+                <!-- Videos se cargan aquí -->
+            </div>
+        </section>
+
         <!-- Navegación -->
         <nav class="nav-sections">
             <div class="nav-sections-container">
-                <a class="nav-section-item" href="#inscripciones">Inscripciones</a>
-                <a class="nav-section-item" href="#cronograma">Cronograma</a>
-                <a class="nav-section-item" href="#requisitos">Requisitos</a>
-                <a class="nav-section-item" href="#organizacion">Organización</a>
+                <a class="nav-section-item" href="#" onclick="showDisclaimer()">🧑‍🤝‍🧑 Inscripciones</a>
+                <a class="nav-section-item" href="#videos" onclick="scrollToVideos()">🎥 Videos</a>
+                <a class="nav-section-item" href="#cronograma">📅 Cronograma</a>
+                <a class="nav-section-item" href="#requisitos">📋 Requisitos</a>
+                <a class="nav-section-item" href="#organizacion">🏢 Organización</a>
             </div>
         </nav>
 
@@ -1186,14 +1450,19 @@
     </div>
 
     <script>
-        // Variables globales
+        // ===============================
+        // VARIABLES GLOBALES
+        // ===============================
         let frecuenciasData = [];
         let inscripcionTemporal = null;
         let codigoVerificacion = null;
         let currentSlide = 0;
         let isSelecting = false;
+        let videosPublicos = [];
 
-        // ===== CAROUSEL =====
+        // ===============================
+        // CAROUSEL
+        // ===============================
         const slides = document.querySelectorAll('.carousel-slide');
         const indicators = document.querySelectorAll('.carousel-indicator');
         const totalSlides = slides.length;
@@ -1216,7 +1485,6 @@
             showSlide(prev);
         }
 
-        // Auto-avance del carousel
         let autoSlideInterval = setInterval(nextSlide, 6000);
 
         function resetAutoSlide() {
@@ -1224,7 +1492,6 @@
             autoSlideInterval = setInterval(nextSlide, 6000);
         }
 
-        // Event listeners del carousel
         indicators.forEach((indicator, index) => {
             indicator.addEventListener('click', () => {
                 showSlide(index);
@@ -1242,7 +1509,292 @@
             resetAutoSlide();
         });
 
-        // ===== DISCLAIMER =====
+        // ===============================
+        // GESTIÓN DE VIDEOS PÚBLICOS
+        // ===============================
+        async function loadVideosPublicos() {
+            console.log('🎥 Cargando videos públicos...');
+            
+            try {
+                const response = await fetch('/api/videos');
+                
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+                
+                const videos = await response.json();
+                
+                // Filtrar solo videos publicados
+                const videosPublicados = Array.isArray(videos) ? 
+                    videos.filter(video => video.status === 'published') : [];
+                
+                console.log('✅ Videos públicos encontrados:', videosPublicados.length);
+                
+                renderVideosPublicos(videosPublicados);
+                
+            } catch (error) {
+                console.error('❌ Error cargando videos públicos:', error);
+                renderVideosError();
+            }
+        }
+
+        function renderVideosPublicos(videos) {
+            console.log('🎬 Renderizando videos públicos:', videos.length);
+            
+            let videosContainer = document.getElementById('videosPublicos');
+            let videosSection = document.getElementById('videosSection');
+            
+            // Si no existe la sección, crearla
+            if (!videosSection) {
+                console.log('🔧 Creando sección de videos...');
+                videosSection = document.createElement('section');
+                videosSection.id = 'videosSection';
+                videosSection.className = 'videos-section';
+                videosSection.innerHTML = `
+                    <h2>🎥 GALERÍA DE VIDEOS</h2>
+                    <p>Revive los mejores momentos del Desafío Dunas de Nazca</p>
+                    <div id="videosPublicos" class="videos-grid">
+                        <!-- Videos se cargan aquí -->
+                    </div>
+                `;
+                
+                // Insertar antes del footer
+                const footer = document.querySelector('.footer-block');
+                if (footer) {
+                    footer.parentNode.insertBefore(videosSection, footer);
+                } else {
+                    document.querySelector('.main-container').appendChild(videosSection);
+                }
+                
+                videosContainer = document.getElementById('videosPublicos');
+            }
+            
+            if (!videosContainer) {
+                console.log('⚠️ Container de videos no encontrado');
+                return;
+            }
+            
+            if (videos.length === 0) {
+                // En lugar de ocultar, mostrar mensaje
+                videosSection.style.display = 'block';
+                videosContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666; grid-column: 1/-1;">
+                        <div style="font-size: 3rem; margin-bottom: 15px;">🎬</div>
+                        <h3>No hay videos disponibles</h3>
+                        <p>Los videos se agregarán próximamente.</p>
+                    </div>
+                `;
+                console.log('📝 No hay videos públicos para mostrar');
+                return;
+            }
+            
+            // Mostrar la sección si hay videos
+            videosSection.style.display = 'block';
+            
+            // Ordenar videos: destacados primero
+            const videosOrdenados = videos.sort((a, b) => {
+                if (a.featured && !b.featured) return -1;
+                if (!a.featured && b.featured) return 1;
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            });
+            
+            // Generar HTML de las tarjetas
+            const videosHTML = videosOrdenados.map(video => `
+                <div class="video-card" onclick="abrirVideoModal('${video.url}', '${escapeHtml(video.title)}', '${escapeHtml(video.description || '')}', '${video.category}', ${video.views || 0})">
+                    <div class="video-thumbnail">
+                        ${video.featured ? '<div class="video-featured-badge">⭐ DESTACADO</div>' : ''}
+                        <div class="video-play-button">▶</div>
+                        <div class="video-duration">${video.duration || '0:00'}</div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title-public">${escapeHtml(video.title)}</h3>
+                        <p class="video-description-public">${escapeHtml(video.description || 'Sin descripción')}</p>
+                        <div class="video-meta">
+                            <span class="video-category">${getCategoryName(video.category)}</span>
+                            <span class="video-views">👁 ${video.views || 0} vistas</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            videosContainer.innerHTML = videosHTML;
+            console.log('✅ Videos renderizados correctamente');
+        }
+
+        function renderVideosError() {
+            const videosContainer = document.getElementById('videosPublicos');
+            const videosSection = document.getElementById('videosSection');
+            
+            if (videosContainer) {
+                videosContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <div style="font-size: 3rem; margin-bottom: 15px;">⚠️</div>
+                        <h3>Error cargando videos</h3>
+                        <p>No se pudieron cargar los videos en este momento.</p>
+                        <button onclick="loadVideosPublicos()" style="background: #8b5a3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                            🔄 Reintentar
+                        </button>
+                    </div>
+                `;
+            }
+            
+            if (videosSection) {
+                videosSection.style.display = 'block';
+            }
+        }
+
+        function getCategoryName(category) {
+            const categories = {
+                'evento': '🏁 Evento',
+                'preparacion': '🔧 Preparación', 
+                'competencia': '🏆 Competencia',
+                'highlights': '⭐ Highlights',
+                'entrevistas': '🎤 Entrevistas',
+                'paisaje': '🏜️ Paisajes',
+                'tecnico': '⚙️ Técnico',
+                'documental': '📹 Documental',
+                'aventura': '🗻 Aventura',
+                'educativo': '📚 Educativo',
+                'promocional': '📺 Promocional'
+            };
+            
+            return categories[category] || '📹 Video';
+        }
+
+        function abrirVideoModal(videoUrl, titulo, descripcion, categoria, vistas) {
+            console.log('🎬 Abriendo modal de video:', titulo);
+            
+            if (!videoUrl) {
+                console.error('❌ URL de video no válida');
+                return;
+            }
+            
+            // Crear modal si no existe
+            let modal = document.getElementById('videoModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'videoModal';
+                modal.className = 'video-modal';
+                modal.innerHTML = `
+                    <div class="video-modal-content">
+                        <div class="video-modal-header">
+                            <h3 id="videoModalTitle">Título del video</h3>
+                            <button class="video-modal-close" onclick="cerrarVideoModal()">×</button>
+                        </div>
+                        <div class="video-modal-player">
+                            <video id="videoModalPlayer" controls preload="metadata">
+                                <source src="" type="video/mp4">
+                                Tu navegador no soporta videos HTML5.
+                            </video>
+                        </div>
+                        <div class="video-modal-info">
+                            <p id="videoModalDescription"></p>
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #718096;">
+                                <div>
+                                    <span id="videoModalCategory" class="video-category"></span>
+                                    <span id="videoModalViews" style="margin-left: 10px;">👁 0 vistas</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                
+                // Agregar evento para cerrar al hacer clic fuera
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        cerrarVideoModal();
+                    }
+                });
+            }
+            
+            // Actualizar contenido
+            document.getElementById('videoModalTitle').textContent = titulo;
+            document.getElementById('videoModalDescription').textContent = descripcion || 'Sin descripción';
+            document.getElementById('videoModalCategory').textContent = getCategoryName(categoria);
+            document.getElementById('videoModalViews').textContent = `👁 ${vistas} vistas`;
+            document.getElementById('videoModalPlayer').src = videoUrl;
+            
+            // Mostrar modal
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cerrarVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const player = document.getElementById('videoModalPlayer');
+            
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+            
+            if (player) {
+                player.pause();
+                player.src = '';
+            }
+            
+            console.log('❌ Modal de video cerrado');
+        }
+
+        function updateNavigationWithVideos() {
+            // La navegación ya incluye el enlace a videos, no necesitamos agregarlo dinámicamente
+            console.log('✅ Navegación de videos ya configurada');
+        }
+
+        function scrollToVideos() {
+            console.log('🎬 Iniciando navegación a videos...');
+            
+            let videosSection = document.getElementById('videosSection');
+            console.log('📍 Sección encontrada:', videosSection ? 'SÍ' : 'NO');
+            
+            // Si no existe la sección, crearla
+            if (!videosSection) {
+                console.log('🔧 Creando sección de videos dinámicamente...');
+                videosSection = document.createElement('section');
+                videosSection.id = 'videosSection';
+                videosSection.className = 'videos-section';
+                videosSection.innerHTML = `
+                    <h2>🎥 GALERÍA DE VIDEOS</h2>
+                    <p>Revive los mejores momentos del Desafío Dunas de Nazca</p>
+                    <div id="videosPublicos" class="videos-grid">
+                        <!-- Videos se cargan aquí -->
+                    </div>
+                `;
+                
+                // Insertar antes del footer
+                const footer = document.querySelector('.footer-block');
+                if (footer) {
+                    footer.parentNode.insertBefore(videosSection, footer);
+                } else {
+                    document.querySelector('.main-container').appendChild(videosSection);
+                }
+                
+                console.log('✅ Sección de videos creada');
+            }
+            
+            // Asegurar que la sección sea visible
+            videosSection.style.display = 'block';
+            
+            // Hacer scroll hacia la sección
+            videosSection.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+            
+            console.log('✅ Navegando hacia sección de videos');
+            
+            // Cargar videos si no están cargados
+            const videosContainer = document.getElementById('videosPublicos');
+            if (videosContainer && videosContainer.children.length === 0) {
+                console.log('🔄 Cargando videos...');
+                loadVideosPublicos();
+            }
+        }
+
+        // ===============================
+        // DISCLAIMER
+        // ===============================
         function showDisclaimer() {
             document.getElementById('disclaimerModal').style.display = 'block';
             document.body.style.overflow = 'hidden';
@@ -1282,7 +1834,9 @@
             }
         }
 
-        // ===== ADMIN =====
+        // ===============================
+        // ADMIN ACCESS
+        // ===============================
         function openAdminModal() {
             const modalHTML = `
                 <div class="admin-modal" id="adminModal">
@@ -1340,7 +1894,9 @@
             document.getElementById('adminButton').addEventListener('click', openAdminModal);
         }
 
-        // ===== FRECUENCIAS =====
+        // ===============================
+        // FRECUENCIAS
+        // ===============================
         async function loadFrecuencias() {
             try {
                 const response = await fetch('/api/frecuencias');
@@ -1353,7 +1909,9 @@
             }
         }
 
-        // ===== INSCRIPCIÓN =====
+        // ===============================
+        // INSCRIPCIÓN
+        // ===============================
         function abrirFormularioInscripcion() {
             showInscripcionForm();
         }
@@ -1811,14 +2369,18 @@
             showFormModal(modalContent);
         }
 
-        // ===== UTILIDADES =====
+        // ===============================
+        // UTILIDADES
+        // ===============================
         function showFormModal(content) {
             document.getElementById('formContent').innerHTML = content;
             document.getElementById('formOverlay').style.display = 'block';
+            document.body.style.overflow = 'hidden';
         }
 
         function hideAllForms() {
             document.getElementById('formOverlay').style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
 
         function handleOverlayClick(event) {
@@ -1864,7 +2426,16 @@
             }, 5000);
         }
 
-        // ===== EVENTOS =====
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ===============================
+        // EVENTOS
+        // ===============================
         document.addEventListener('keydown', function(e) {
             if (e.key === 'ArrowRight') {
                 nextSlide();
@@ -1875,6 +2446,7 @@
             } else if (e.key === 'Escape') {
                 hideAllForms();
                 closeDisclaimer();
+                cerrarVideoModal();
             }
         });
 
@@ -1884,16 +2456,26 @@
             }
         });
 
-        // ===== INICIALIZACIÓN =====
-        window.addEventListener('DOMContentLoaded', function() {
+        // ===============================
+        // INICIALIZACIÓN
+        // ===============================
+        document.addEventListener('DOMContentLoaded', function() {
             console.log('🏁 Página cargada - Inicializando sistemas...');
+            
             setupAdminAccess();
             loadFrecuencias();
+            
+            // Cargar videos con un pequeño delay
+            setTimeout(() => {
+                loadVideosPublicos();
+            }, 1000);
         });
 
         window.addEventListener('load', function() {
             document.querySelector('.main-container').classList.add('fade-in');
         });
+
+        console.log('✅ Landing page inicializado correctamente');
     </script>
 </body>
 </html>

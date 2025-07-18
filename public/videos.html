@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Gestión de Videos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .video-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .video-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        .video-player {
+            width: 100%;
+            height: 200px;
+            background: #000;
+        }
+        
+        .video-info {
+            padding: 15px;
+        }
+        
+        .video-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .video-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+        
+        .video-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+        
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .status.published {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.draft {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .featured-badge {
+            background: #ffd700;
+            color: #333;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .video-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-edit {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            background: #0056b3;
+        }
+        
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background: #c82333;
+        }
+        
+        .btn-toggle {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-toggle:hover {
+            background: #1e7e34;
+        }
+        
+        .no-video {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        /* MODAL STYLES */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            opacity: 0.7;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+        
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-checkbox input {
+            width: auto;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            padding: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .btn-modal {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .btn-save {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-save:hover {
+            background: #218838;
+        }
+        
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-cancel:hover {
+            background: #545b62;
+        }
+
+        /* ESTILOS DE LA BARRA DE NAVEGACIÓN - ESTILO DASHBOARD */
+        .top-navbar {
+            background: #e8eaf6;
+            color: #333;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-back-btn {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #8d6e63;
+            border-radius: 4px;
+            transition: background 0.2s;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .nav-back-btn:hover {
+            background: #795548;
+            text-decoration: none;
+            color: white;
+        }
+
+        .nav-brand {
+            color: #8d6e63;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #666;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-size: 14px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+        }
+
+        .nav-link:hover {
+            color: #333;
+            background: #e0e0e0;
+            text-decoration: none;
+            transform: translateY(-1px);
+        }
+
+        .nav-current {
+            color: white;
+            font-weight: bold;
+            background: #1976d2;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            border: 1px solid #1565c0;
+        }
+
+        /* Responsive para móviles */
+        @media (max-width: 768px) {
+            .top-navbar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px;
+            }
+            
+            .nav-left, .nav-right {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .nav-right {
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- BARRA DE NAVEGACIÓN -->
+    <nav class="top-navbar">
+        <div class="nav-left">
+            <a href="admin.html" class="nav-back-btn">
+                ⬅️ Volver al Dashboard
+            </a>
+            <span class="nav-brand">🏔️ Dunas de Nazca</span>
+        </div>
+        <div class="nav-right">
+            <a href="admin.html" class="nav-link">🏠 Dashboard</a>
+            <a href="admin.html" class="nav-link">📋 Frecuencias</a>
+            <a href="admin.html" class="nav-link">👥 Inscripciones</a>
+            <span class="nav-current">🎥 Videos</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>🎥 Gestión de Videos</h1>
+            <p>Administra tu biblioteca de videos</p>
+            <button onclick="openUploadModal()" style="background: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px;">
+                📤 + Subir Nuevo Video
+            </button>
+        </div>
+        
+        <div class="stats" id="videoStats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalVideos">-</div>
+                <div class="stat-label">Total Videos</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="publishedVideos">-</div>
+                <div class="stat-label">Publicados</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="draftVideos">-</div>
+                <div class="stat-label">Borradores</div>
+            </div>
+        </div>
+
+        <!-- BOTONES DE DEBUG RESTAURADOS -->
+        <div style="background: #fff3cd; padding: 15px; margin: 0 20px 20px 20px; border-radius: 8px; border: 1px solid #ffeaa7;">
+            <h4 style="margin: 0 0 10px 0; color: #856404;">🛠️ DEBUG BASE DE DATOS</h4>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button onclick="debugDatabase()" style="background: #ffc107; color: #212529; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    🔍 Ver Base de Datos
+                </button>
+                <button onclick="resetDatabase()" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    🔄 Reset Base de Datos
+                </button>
+                <button onclick="refreshVideos()" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    🔃 Recargar Videos
+                </button>
+                <button onclick="testDashboardSync()" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    🔗 Test Dashboard Sync
+                </button>
+            </div>
+            <div id="debugOutput" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; display: none;"></div>
+        </div>
+        
+        <div class="video-grid" id="videoGrid">
+            <div class="loading">🔄 Cargando videos...</div>
+        </div>
+    </div>
+
+    <!-- MODAL DE UPLOAD -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📤 Subir Nuevo Video</h2>
+                <span class="close" onclick="closeUploadModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="form-label" for="uploadFile">Archivo de Video *</label>
+                        <input type="file" id="uploadFile" name="video" class="form-input" accept="video/*" required>
+                        <small style="color: #666; font-size: 12px;">Máximo 100MB. Formatos: MP4, AVI, MOV, etc.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="uploadTitle">Título del Video *</label>
+                        <input type="text" id="uploadTitle" name="title" class="form-input" required placeholder="Ingresa el título del video">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="uploadDescription">Descripción</label>
+                        <textarea id="uploadDescription" name="description" class="form-input form-textarea" placeholder="Describe el contenido del video..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="uploadCategory">Categoría *</label>
+                        <select id="uploadCategory" name="category" class="form-select" required>
+                            <option value="">Selecciona una categoría</option>
+                            <option value="evento">Evento</option>
+                            <option value="entrenamiento">Entrenamiento</option>
+                            <option value="documental">Documental</option>
+                            <option value="entrevista">Entrevista</option>
+                            <option value="preparacion">Preparación</option>
+                            <option value="competencia">Competencia</option>
+                            <option value="aventura">Aventura</option>
+                            <option value="educativo">Educativo</option>
+                            <option value="promocional">Promocional</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="uploadStatus">Estado</label>
+                        <select id="uploadStatus" name="status" class="form-select">
+                            <option value="draft">Borrador</option>
+                            <option value="published">Publicado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="uploadDuration">Duración</label>
+                        <input type="text" id="uploadDuration" name="duration" class="form-input" placeholder="ej: 5:30">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="uploadTags">Tags (separados por comas)</label>
+                        <input type="text" id="uploadTags" name="tags" class="form-input" placeholder="ej: aventura, nazca, competencia">
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="form-checkbox">
+                            <input type="checkbox" id="uploadFeatured" name="featured">
+                            <label for="uploadFeatured">⭐ Marcar como destacado</label>
+                        </div>
+                    </div>
+
+                    <div id="uploadProgress" style="display: none; margin-top: 15px;">
+                        <div style="background: #f0f0f0; border-radius: 10px; overflow: hidden;">
+                            <div id="uploadProgressBar" style="background: #28a745; height: 20px; width: 0%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;"></div>
+                        </div>
+                        <div id="uploadStatus" style="margin-top: 5px; font-size: 14px; color: #666;"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-modal btn-cancel" onclick="closeUploadModal()">
+                    Cancelar
+                </button>
+                <button type="button" class="btn-modal btn-save" onclick="uploadVideo()" id="uploadButton">
+                    📤 Subir Video
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE EDICIÓN -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✏️ Editar Video</h2>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <div class="form-group">
+                        <label class="form-label" for="editTitle">Título del Video *</label>
+                        <input type="text" id="editTitle" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editDescription">Descripción</label>
+                        <textarea id="editDescription" class="form-input form-textarea" placeholder="Describe el contenido del video..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editCategory">Categoría *</label>
+                        <select id="editCategory" class="form-select" required>
+                            <option value="evento">Evento</option>
+                            <option value="entrenamiento">Entrenamiento</option>
+                            <option value="documental">Documental</option>
+                            <option value="entrevista">Entrevista</option>
+                            <option value="preparacion">Preparación</option>
+                            <option value="competencia">Competencia</option>
+                            <option value="aventura">Aventura</option>
+                            <option value="educativo">Educativo</option>
+                            <option value="promocional">Promocional</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editStatus">Estado</label>
+                        <select id="editStatus" class="form-select">
+                            <option value="draft">Borrador</option>
+                            <option value="published">Publicado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editDuration">Duración</label>
+                        <input type="text" id="editDuration" class="form-input" placeholder="ej: 5:30">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editTags">Tags (separados por comas)</label>
+                        <input type="text" id="editTags" class="form-input" placeholder="ej: aventura, nazca, competencia">
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="form-checkbox">
+                            <input type="checkbox" id="editFeatured">
+                            <label for="editFeatured">⭐ Marcar como destacado</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-modal btn-cancel" onclick="closeEditModal()">
+                    Cancelar
+                </button>
+                <button type="button" class="btn-modal btn-save" onclick="saveVideoEdit()">
+                    💾 Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class VideoManager {
+            constructor() {
+                this.baseUrl = window.location.origin;
+                this.currentEditingVideo = null;
+                
+                // ✅ AGREGAR DELAY PARA EVITAR RATE LIMITING
+                setTimeout(() => this.loadStats(), 1000);
+                setTimeout(() => this.loadVideos(), 2000);
+            }
+            
+            async loadStats() {
+                try {
+                    const response = await fetch(`${this.baseUrl}/api/videos/stats`);
+                    
+                    if (!response.ok) {
+                        console.warn(`⚠️ Error stats ${response.status}: ${response.statusText}`);
+                        // Mostrar valores por defecto si hay error
+                        document.getElementById('totalVideos').textContent = '?';
+                        document.getElementById('publishedVideos').textContent = '?';
+                        document.getElementById('draftVideos').textContent = '?';
+                        return;
+                    }
+                    
+                    const result = await response.json();
+                    
+                    if (result.data) {
+                        document.getElementById('totalVideos').textContent = result.data.total;
+                        document.getElementById('publishedVideos').textContent = result.data.published;
+                        document.getElementById('draftVideos').textContent = result.data.draft;
+                    }
+                } catch (error) {
+                    console.error('Error cargando estadísticas:', error);
+                    // Mostrar valores por defecto
+                    document.getElementById('totalVideos').textContent = '-';
+                    document.getElementById('publishedVideos').textContent = '-';
+                    document.getElementById('draftVideos').textContent = '-';
+                }
+            }
+            
+            async loadVideos() {
+                try {
+                    const response = await fetch(`${this.baseUrl}/api/videos`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Error ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const videos = await response.json();
+                    
+                    // ✅ VERIFICAR QUE SEA ARRAY
+                    if (!Array.isArray(videos)) {
+                        console.error('❌ Respuesta no es array:', videos);
+                        this.showError('Error: Los datos recibidos no son válidos');
+                        return;
+                    }
+                    
+                    this.renderVideos(videos);
+                } catch (error) {
+                    console.error('Error cargando videos:', error);
+                    this.showError('Error cargando videos: ' + error.message);
+                }
+            }
+            
+            renderVideos(videos) {
+                const grid = document.getElementById('videoGrid');
+                
+                if (!videos || videos.length === 0) {
+                    grid.innerHTML = '<div class="loading">📹 No hay videos disponibles</div>';
+                    return;
+                }
+                
+                grid.innerHTML = videos.map(video => `
+                    <div class="video-card">
+                        ${this.renderVideoPlayer(video)}
+                        <div class="video-info">
+                            <div class="video-title">${this.escapeHtml(video.title)}</div>
+                            <div class="video-description">${this.escapeHtml(video.description || 'Sin descripción')}</div>
+                            
+                            <div class="video-meta">
+                                <span class="status ${video.status}">${video.status}</span>
+                                ${video.featured ? '<span class="featured-badge">⭐ Destacado</span>' : ''}
+                                <span>👀 ${video.views || 0} vistas</span>
+                            </div>
+                            
+                            <div style="font-size: 12px; color: #999;">
+                                📂 ${video.category} | ⏱️ ${video.duration} | 📅 ${this.formatDate(video.createdAt)}
+                                ${video.size ? `| 💾 ${this.formatFileSize(video.size)}` : ''}
+                            </div>
+                            
+                            <div class="video-actions">
+                                <button class="btn btn-edit" onclick="videoManager.editVideo('${video._id}')">
+                                    ✏️ Editar
+                                </button>
+                                <button class="btn btn-toggle" onclick="videoManager.toggleStatus('${video._id}', '${video.status}')">
+                                    ${video.status === 'published' ? '📋 Ocultar' : '🌐 Publicar'}
+                                </button>
+                                <button class="btn btn-delete" onclick="videoManager.deleteVideo('${video._id}', '${this.escapeHtml(video.title)}')">
+                                    🗑️ Eliminar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            renderVideoPlayer(video) {
+                if (!video.url || !video.filename) {
+                    return '<div class="no-video">📹 Sin archivo de video</div>';
+                }
+                
+                return `
+                    <video class="video-player" controls preload="metadata">
+                        <source src="${video.url}" type="video/mp4">
+                        <source src="${video.url}" type="video/webm">
+                        <source src="${video.url}" type="video/ogg">
+                        Tu navegador no soporta el elemento video.
+                    </video>
+                `;
+            }
+            
+            // NUEVA FUNCIÓN DE EDICIÓN
+            async editVideo(videoId) {
+                try {
+                    // Obtener datos del video
+                    const response = await fetch(`${this.baseUrl}/api/videos`);
+                    const videos = await response.json();
+                    const video = videos.find(v => v._id === videoId);
+                    
+                    if (!video) {
+                        alert('Video no encontrado');
+                        return;
+                    }
+                    
+                    // Guardar referencia del video actual
+                    this.currentEditingVideo = video;
+                    
+                    // Llenar el formulario
+                    document.getElementById('editTitle').value = video.title || '';
+                    document.getElementById('editDescription').value = video.description || '';
+                    document.getElementById('editCategory').value = video.category || 'otro';
+                    document.getElementById('editStatus').value = video.status || 'draft';
+                    document.getElementById('editDuration').value = video.duration || '';
+                    document.getElementById('editTags').value = video.tags || '';
+                    document.getElementById('editFeatured').checked = video.featured || false;
+                    
+                    // Mostrar el modal
+                    document.getElementById('editModal').style.display = 'block';
+                    
+                } catch (error) {
+                    console.error('Error cargando video para editar:', error);
+                    alert('Error cargando datos del video');
+                }
+            }
+            
+            async toggleStatus(videoId, currentStatus) {
+                const newStatus = currentStatus === 'published' ? 'draft' : 'published';
+                
+                try {
+                    const response = await fetch(`${this.baseUrl}/api/videos/${videoId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        console.log(`✅ Estado cambiado a: ${newStatus}`);
+                        this.loadVideos(); // Recargar lista
+                        this.loadStats(); // Actualizar estadísticas
+                    } else {
+                        alert('Error cambiando estado: ' + result.error);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error cambiando estado');
+                }
+            }
+            
+            async deleteVideo(videoId, title) {
+                if (!confirm(`¿Estás seguro de eliminar el video "${title}"?\n\nEsta acción no se puede deshacer.`)) {
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`${this.baseUrl}/api/videos/${videoId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        console.log('✅ Video eliminado');
+                        this.loadVideos(); // Recargar lista
+                        this.loadStats(); // Actualizar estadísticas
+                    } else {
+                        alert('Error eliminando video: ' + result.error);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error eliminando video');
+                }
+            }
+            
+            showError(message) {
+                const grid = document.getElementById('videoGrid');
+                grid.innerHTML = `<div class="error">❌ ${message}</div>`;
+            }
+            
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            formatDate(dateString) {
+                return new Date(dateString).toLocaleDateString('es-ES');
+            }
+            
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        }
+        
+        // FUNCIONES DEL MODAL DE UPLOAD
+        function openUploadModal() {
+            document.getElementById('uploadModal').style.display = 'block';
+            // Limpiar formulario
+            document.getElementById('uploadForm').reset();
+            document.getElementById('uploadProgress').style.display = 'none';
+            document.getElementById('uploadButton').disabled = false;
+            document.getElementById('uploadButton').textContent = '📤 Subir Video';
+        }
+        
+        function closeUploadModal() {
+            document.getElementById('uploadModal').style.display = 'none';
+            document.getElementById('uploadForm').reset();
+            document.getElementById('uploadProgress').style.display = 'none';
+        }
+        
+        async function uploadVideo() {
+            const form = document.getElementById('uploadForm');
+            const fileInput = document.getElementById('uploadFile');
+            const titleInput = document.getElementById('uploadTitle');
+            const categoryInput = document.getElementById('uploadCategory');
+            
+            // Validaciones
+            if (!fileInput.files[0]) {
+                alert('Por favor selecciona un archivo de video');
+                return;
+            }
+            
+            if (!titleInput.value.trim()) {
+                alert('Por favor ingresa un título para el video');
+                return;
+            }
+            
+            if (!categoryInput.value) {
+                alert('Por favor selecciona una categoría');
+                return;
+            }
+            
+            // Validar tamaño de archivo (100MB = 100 * 1024 * 1024 bytes)
+            const maxSize = 100 * 1024 * 1024;
+            if (fileInput.files[0].size > maxSize) {
+                alert('El archivo es demasiado grande. Máximo permitido: 100MB');
+                return;
+            }
+            
+            // Preparar FormData
+            const formData = new FormData(form);
+            
+            // Mostrar progreso
+            document.getElementById('uploadProgress').style.display = 'block';
+            document.getElementById('uploadButton').disabled = true;
+            document.getElementById('uploadButton').textContent = '⏳ Subiendo...';
+            updateUploadProgress(0, 'Preparando archivo...');
+            
+            try {
+                // Crear XMLHttpRequest para poder mostrar progreso
+                const xhr = new XMLHttpRequest();
+                
+                // Configurar progreso
+                xhr.upload.addEventListener('progress', function(e) {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        updateUploadProgress(percentComplete, `Subiendo... ${Math.round(percentComplete)}%`);
+                    }
+                });
+                
+                // Configurar respuesta
+                xhr.addEventListener('load', function() {
+                    if (xhr.status === 200) {
+                        try {
+                            const result = JSON.parse(xhr.responseText);
+                            if (result.success) {
+                                updateUploadProgress(100, '✅ Video subido exitosamente');
+                                setTimeout(() => {
+                                    closeUploadModal();
+                                    videoManager.loadVideos(); // Recargar lista
+                                    videoManager.loadStats(); // Actualizar estadísticas
+                                    alert('¡Video subido exitosamente!');
+                                }, 1000);
+                            } else {
+                                throw new Error(result.error || 'Error desconocido');
+                            }
+                        } catch (parseError) {
+                            throw new Error('Error procesando respuesta del servidor');
+                        }
+                    } else {
+                        throw new Error(`Error del servidor: ${xhr.status} ${xhr.statusText}`);
+                    }
+                });
+                
+                // Configurar error
+                xhr.addEventListener('error', function() {
+                    updateUploadProgress(0, '❌ Error de conexión');
+                    document.getElementById('uploadButton').disabled = false;
+                    document.getElementById('uploadButton').textContent = '📤 Subir Video';
+                    alert('Error de conexión. Verifica tu internet e intenta de nuevo.');
+                });
+                
+                // Enviar
+                xhr.open('POST', `${videoManager.baseUrl}/api/videos`);
+                xhr.send(formData);
+                
+            } catch (error) {
+                console.error('Error subiendo video:', error);
+                updateUploadProgress(0, '❌ Error: ' + error.message);
+                document.getElementById('uploadButton').disabled = false;
+                document.getElementById('uploadButton').textContent = '📤 Subir Video';
+                alert('Error subiendo video: ' + error.message);
+            }
+        }
+        
+        function updateUploadProgress(percent, message) {
+            const progressBar = document.getElementById('uploadProgressBar');
+            const statusDiv = document.getElementById('uploadStatus');
+            
+            progressBar.style.width = percent + '%';
+            progressBar.textContent = percent > 0 ? Math.round(percent) + '%' : '';
+            statusDiv.textContent = message;
+        }
+        
+        // FUNCIONES DEL MODAL DE EDICIÓN
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            videoManager.currentEditingVideo = null;
+        }
+        
+        async function saveVideoEdit() {
+            if (!videoManager.currentEditingVideo) {
+                alert('Error: No hay video seleccionado');
+                return;
+            }
+            
+            const title = document.getElementById('editTitle').value.trim();
+            const category = document.getElementById('editCategory').value;
+            
+            if (!title || !category) {
+                alert('Título y categoría son obligatorios');
+                return;
+            }
+            
+            const updateData = {
+                title: title,
+                description: document.getElementById('editDescription').value.trim(),
+                category: category,
+                status: document.getElementById('editStatus').value,
+                duration: document.getElementById('editDuration').value.trim(),
+                tags: document.getElementById('editTags').value.trim(),
+                featured: document.getElementById('editFeatured').checked
+            };
+            
+            try {
+                const response = await fetch(`${videoManager.baseUrl}/api/videos/${videoManager.currentEditingVideo._id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('✅ Video actualizado exitosamente');
+                    closeEditModal();
+                    videoManager.loadVideos(); // Recargar lista
+                    videoManager.loadStats(); // Actualizar estadísticas
+                } else {
+                    alert('Error actualizando video: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error actualizando video');
+            }
+        }
+        
+        // Cerrar modales al hacer clic fuera
+        window.onclick = function(event) {
+            const editModal = document.getElementById('editModal');
+            const uploadModal = document.getElementById('uploadModal');
+            
+            if (event.target === editModal) {
+                closeEditModal();
+            }
+            if (event.target === uploadModal) {
+                closeUploadModal();
+            }
+        }
+        
+        // Inicializar cuando cargue la página
+        let videoManager;
+        document.addEventListener('DOMContentLoaded', () => {
+            videoManager = new VideoManager();
+        });
+    </script>
+</body>
+</html>
