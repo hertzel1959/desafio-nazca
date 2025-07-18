@@ -425,6 +425,129 @@
             margin-bottom: 40px;
         }
 
+        /* Sección de Organización */
+        .organizacion-section {
+            padding: 50px 20px;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+        }
+
+        .organizacion-section h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #8b5a3c;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .organizacion-section p {
+            text-align: center;
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+
+        .organizacion-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto 40px auto;
+        }
+
+        .organizacion-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .organizacion-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .organizacion-card.principal {
+            border-top: 4px solid #FFD700;
+        }
+
+        .organizacion-card.coordinadores {
+            border-top: 4px solid #8b5a3c;
+        }
+
+        .organizacion-card.nazca {
+            border-top: 4px solid #3182ce;
+        }
+
+        .organizacion-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .organizacion-card h3 {
+            color: #8b5a3c;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .coordinador-nombre {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #2d3748;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            padding: 10px;
+            border-radius: 8px;
+            color: #000;
+        }
+
+        .coordinadores-lista {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .coordinador-item {
+            font-size: 1rem;
+            color: #4a5568;
+            padding: 8px 12px;
+            background: #f7fafc;
+            border-radius: 6px;
+            border-left: 3px solid #8b5a3c;
+        }
+
+        .organizacion-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .info-box h4 {
+            color: #8b5a3c;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .info-box p {
+            color: #4a5568;
+            line-height: 1.6;
+            margin: 0;
+            text-align: left;
+        }
+
         .videos-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -1254,6 +1377,20 @@
             .video-modal-player {
                 height: 250px;
             }
+
+            .organizacion-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .organizacion-card {
+                padding: 20px;
+            }
+            
+            .organizacion-info {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
         }
     </style>
 </head>
@@ -1268,7 +1405,7 @@
                     <li><a href="#videos" onclick="scrollToVideos()">🎥 Videos</a></li>
                     <li><a href="#cronograma">📅 Cronograma</a></li>
                     <li><a href="#requisitos">📋 Requisitos</a></li>
-                    <li><a href="#organizacion">🏢 Organización</a></li>
+                    <li><a href="#" onclick="scrollToOrganizacion()">🏢 Organización</a></li>
                     <li><button class="admin-access" id="adminButton">🔐 Admin</button></li>
                 </ul>
             </nav>
@@ -1346,6 +1483,50 @@
             <p>Revive los mejores momentos del Desafío Dunas de Nazca</p>
             <div id="videosPublicos" class="videos-grid">
                 <!-- Videos se cargan aquí -->
+            </div>
+        </section>
+
+        <!-- Sección de Organización -->
+        <section class="organizacion-section" id="organizacionSection" style="display: none;">
+            <h2>🏢 ORGANIZACIÓN DEL EVENTO</h2>
+            <p>Conoce al equipo coordinador del Desafío Dunas de Nazca 2025</p>
+            
+            <div class="organizacion-grid">
+                <div class="organizacion-card principal">
+                    <div class="organizacion-icon">👑</div>
+                    <h3>Coordinador Principal</h3>
+                    <div class="coordinador-nombre">Víctor Ipenza</div>
+                </div>
+                
+                <div class="organizacion-card coordinadores">
+                    <div class="organizacion-icon">👥</div>
+                    <h3>Coordinadores</h3>
+                    <div class="coordinadores-lista">
+                        <div class="coordinador-item">Jaime Alvariño</div>
+                        <div class="coordinador-item">Augusto Yara</div>
+                        <div class="coordinador-item">José Bazán</div>
+                        <div class="coordinador-item">Ricardo Mendiola</div>
+                    </div>
+                </div>
+                
+                <div class="organizacion-card nazca">
+                    <div class="organizacion-icon">📍</div>
+                    <h3>Coordinador en Nazca</h3>
+                    <div class="coordinador-nombre">César Rivera</div>
+                </div>
+            </div>
+            
+            <div class="organizacion-info">
+                <div class="info-box">
+                    <h4>🤝 Colaboración</h4>
+                    <p>Este evento es posible gracias a la colaboración entre la comunidad 4x4 y el apoyo de la Municipalidad del Valle de Trancas - Vista Alegre - Nasca.</p>
+                </div>
+                
+                <div class="info-box">
+                    <h4>📞 Contacto</h4>
+                    <p>Para consultas sobre organización y coordinación del evento, contacta a: <br>
+                    <strong>📧 desafiodunadenazca@gmail.com</strong></p>
+                </div>
             </div>
         </section>
 
@@ -1789,6 +1970,100 @@
             if (videosContainer && videosContainer.children.length === 0) {
                 console.log('🔄 Cargando videos...');
                 loadVideosPublicos();
+            }
+        }
+
+        function scrollToOrganizacion() {
+            console.log('🏢 Iniciando navegación a organización...');
+            
+            let organizacionSection = document.getElementById('organizacionSection');
+            console.log('📍 Sección de organización encontrada:', organizacionSection ? 'SÍ' : 'NO');
+            
+            if (organizacionSection) {
+                // Forzar visibilidad
+                organizacionSection.style.display = 'block';
+                organizacionSection.style.visibility = 'visible';
+                
+                console.log('👀 Sección hecha visible, iniciando scroll...');
+                
+                // Hacer scroll con timeout para asegurar que se renderice
+                setTimeout(() => {
+                    organizacionSection.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    console.log('✅ Scroll ejecutado hacia organización');
+                }, 100);
+                
+            } else {
+                console.log('🔧 Sección no encontrada, creando dinámicamente...');
+                
+                // Crear sección dinámicamente
+                organizacionSection = document.createElement('section');
+                organizacionSection.id = 'organizacionSection';
+                organizacionSection.className = 'organizacion-section';
+                organizacionSection.style.display = 'block';
+                organizacionSection.innerHTML = `
+                    <h2>🏢 ORGANIZACIÓN DEL EVENTO</h2>
+                    <p>Conoce al equipo coordinador del Desafío Dunas de Nazca 2025</p>
+                    
+                    <div class="organizacion-grid">
+                        <div class="organizacion-card principal">
+                            <div class="organizacion-icon">👑</div>
+                            <h3>Coordinador Principal</h3>
+                            <div class="coordinador-nombre">Víctor Ipenza</div>
+                        </div>
+                        
+                        <div class="organizacion-card coordinadores">
+                            <div class="organizacion-icon">👥</div>
+                            <h3>Coordinadores</h3>
+                            <div class="coordinadores-lista">
+                                <div class="coordinador-item">Jaime Alvariño</div>
+                                <div class="coordinador-item">Augusto Yara</div>
+                                <div class="coordinador-item">José Bazán</div>
+                                <div class="coordinador-item">Ricardo Mendiola</div>
+                            </div>
+                        </div>
+                        
+                        <div class="organizacion-card nazca">
+                            <div class="organizacion-icon">📍</div>
+                            <h3>Coordinador en Nazca</h3>
+                            <div class="coordinador-nombre">César Rivera</div>
+                        </div>
+                    </div>
+                    
+                    <div class="organizacion-info">
+                        <div class="info-box">
+                            <h4>🤝 Colaboración</h4>
+                            <p>Este evento es posible gracias a la colaboración entre la comunidad 4x4 y el apoyo de la Municipalidad del Valle de Trancas - Vista Alegre - Nasca.</p>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h4>📞 Contacto</h4>
+                            <p>Para consultas sobre organización y coordinación del evento, contacta a: <br>
+                            <strong>📧 desafiodunadenazca@gmail.com</strong></p>
+                        </div>
+                    </div>
+                `;
+                
+                // Insertar antes del footer
+                const footer = document.querySelector('.footer-block');
+                if (footer) {
+                    footer.parentNode.insertBefore(organizacionSection, footer);
+                } else {
+                    document.querySelector('.main-container').appendChild(organizacionSection);
+                }
+                
+                console.log('✅ Sección de organización creada');
+                
+                // Hacer scroll después de crear
+                setTimeout(() => {
+                    organizacionSection.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    console.log('✅ Scroll ejecutado hacia nueva sección');
+                }, 200);
             }
         }
 
