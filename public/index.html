@@ -2303,8 +2303,26 @@
                     </div>
                     
                     <div class="form-group">
-                        <label>Edad:</label>
-                        <input type="number" name="edad" required min="16" max="80" placeholder="Ej: 25">
+                        <label>¿Desea ordenar Polo?</label>
+                        <select name="deseaPolo" required onchange="toggleTallaField(this.value)">
+                            <option value="">Seleccionar...</option>
+                            <option value="SI">👕 SÍ, quiero polo</option>
+                            <option value="NO">❌ NO, no quiero polo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="tallaGroup" style="display: none;">
+                        <label>Talla del Polo:</label>
+                        <select name="talla" id="tallaSelect">
+                            <option value="">Seleccionar talla...</option>
+                            <option value="XS">👕 XS (Extra Small)</option>
+                            <option value="S">👕 S (Small)</option>
+                            <option value="M">👕 M (Medium)</option>
+                            <option value="L">👕 L (Large)</option>
+                            <option value="XL">👕 XL (Extra Large)</option>
+                            <option value="XXL">👕 XXL (Extra Extra Large)</option>
+                            <option value="XXXL">👕 XXXL (3X Large)</option>
+                        </select>
                     </div>
                     
                     <div class="form-group">
@@ -2408,14 +2426,8 @@
                         </select>
                     </div>
                     
-                    <div class="form-group">
-                        <label>Estado:</label>
-                        <select name="estado">
-                            <option value="PENDIENTE" selected>⏳ Pendiente</option>
-                            <option value="CONFIRMADO">✅ Confirmado</option>
-                            <option value="CANCELADO">❌ Cancelado</option>
-                        </select>
-                    </div>
+                    <!-- Campo Estado oculto - siempre CONFIRMADO -->
+                    <input type="hidden" name="estado" value="CONFIRMADO">
                     
                     <div class="form-group" style="grid-column: 1/-1;">
                         <label>Observaciones:</label>
@@ -2472,6 +2484,29 @@
             }
         }
 
+        function toggleTallaField(value) {
+            const tallaGroup = document.getElementById('tallaGroup');
+            const tallaSelect = document.getElementById('tallaSelect');
+            
+            if (value === 'SI') {
+                // Mostrar campo de talla y hacerlo obligatorio
+                tallaGroup.style.display = 'flex';
+                tallaSelect.required = true;
+                console.log('✅ Campo talla mostrado y requerido');
+            } else if (value === 'NO') {
+                // Ocultar campo de talla y quitar obligatoriedad
+                tallaGroup.style.display = 'none';
+                tallaSelect.required = false;
+                tallaSelect.value = ''; // Limpiar selección
+                console.log('❌ Campo talla ocultado y no requerido');
+            } else {
+                // Si no hay selección, ocultar
+                tallaGroup.style.display = 'none';
+                tallaSelect.required = false;
+                tallaSelect.value = '';
+            }
+        }
+
         async function saveInscripcion(event) {
             event.preventDefault();
             
@@ -2491,27 +2526,64 @@
                 data.grupo = data.grupo.toUpperCase();
                 if (data.contacto) data.contacto = data.contacto.toUpperCase();
                 
+                // Asegurar que el estado siempre sea CONFIRMADO
+                data.estado = 'CONFIRMADO';
+                
+                // Manejar la talla según si desea polo o no
+                if (data.deseaPolo === 'NO') {
+                    data.talla = 'NO APLICA'; // Guardar dato cuando no quiere polo
+                } else if (data.deseaPolo === 'SI' && data.talla) {
+                    data.talla = data.talla.toUpperCase(); // Asegurar mayúsculas si sí quiere
+                }
+                
                 if (!data.observaciones) delete data.observaciones;
                 
-                if (!data.grupo || !data.nombres || !data.apellidos || !data.email) {
+                console.log('📝 Datos del formulario:', data);
+                
+                if (!data.grupo || !data.nombres || !data.apellidos || !data.email || !data.deseaPolo) {
                     showMessage('Por favor complete todos los campos obligatorios', 'error');
+                    return;
+                }
+                
+                // Validar talla solo si desea polo
+                if (data.deseaPolo === 'SI' && !data.talla) {
+                    showMessage('Por favor seleccione una talla para el polo', 'error');
                     return;
                 }
                 
                 inscripcionTemporal = data;
                 
+                console.log('📤 Enviando código de verificación...');
+                
                 const response = await fetch('/api/inscripciones/enviar-codigo', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
                     body: JSON.stringify({
                         email: data.email,
                         datosInscripcion: data
                     })
                 });
                 
-                const result = await response.json();
+                console.log('📨 Respuesta envío código:', response.status, response.statusText);
                 
-                if (response.ok) {
+                if (!response.ok) {
+                    let errorMessage = 'Error enviando código de verificación';
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorData.error || errorMessage;
+                    } catch (e) {
+                        errorMessage = `Error ${response.status}: ${response.statusText}`;
+                    }
+                    throw new Error(errorMessage);
+                }
+                
+                const result = await response.json();
+                console.log('✅ Código enviado exitosamente:', result);
+                
+                if (result.success !== false) {
                     hideAllForms();
                     setTimeout(() => {
                         showCodigoVerificacionModal(data.email, result.debug?.codigo);
@@ -2521,8 +2593,19 @@
                 }
                 
             } catch (error) {
-                console.error('❌ Error:', error);
-                showMessage('Error: ' + error.message, 'error');
+                console.error('❌ Error en saveInscripcion:', error);
+                
+                // Manejo específico de errores
+                let userMessage = error.message;
+                if (error.message.includes('500')) {
+                    userMessage = 'Error interno del servidor. Por favor intente nuevamente en unos momentos.';
+                } else if (error.message.includes('network') || error.message.includes('fetch')) {
+                    userMessage = 'Error de conexión. Verifique su internet y vuelva a intentar.';
+                } else if (error.message.includes('email')) {
+                    userMessage = 'Error con el email. Verifique que sea válido.';
+                }
+                
+                showMessage(`❌ ${userMessage}`, 'error');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
@@ -2595,34 +2678,79 @@
                 return;
             }
             
+            // Validar que solo sean números
+            if (!/^\d{6}$/.test(codigo)) {
+                showMessage('El código debe contener solo números', 'error');
+                return;
+            }
+            
             submitBtn.disabled = true;
             submitBtn.textContent = 'Verificando...';
             
             try {
+                console.log('📤 Enviando verificación:', {
+                    email: inscripcionTemporal.email,
+                    codigo: codigo
+                });
+                
                 const response = await fetch('/api/inscripciones/verificar-codigo', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
                     body: JSON.stringify({
                         email: inscripcionTemporal.email,
                         codigo: codigo,
-                        datosInscripcion: inscripcionTemporal
+                        datosInscripcion: {
+                            ...inscripcionTemporal,
+                            estado: 'CONFIRMADO' // Asegurar que siempre sea CONFIRMADO
+                        }
                     })
                 });
                 
-                const result = await response.json();
+                console.log('📨 Respuesta recibida:', response.status, response.statusText);
                 
-                if (response.ok) {
+                if (!response.ok) {
+                    // Intentar obtener el mensaje de error del servidor
+                    let errorMessage = 'Error del servidor';
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorData.error || errorMessage;
+                    } catch (e) {
+                        // Si no se puede parsear como JSON, usar el status
+                        errorMessage = `Error ${response.status}: ${response.statusText}`;
+                    }
+                    throw new Error(errorMessage);
+                }
+                
+                const result = await response.json();
+                console.log('✅ Verificación exitosa:', result);
+                
+                if (result.success || result.data) {
                     hideAllForms();
-                    showSuccessModal(result.data);
+                    showSuccessModal(result.data || result);
                     inscripcionTemporal = null;
                 } else {
-                    showMessage(`❌ ${result.message || 'Código incorrecto'}`, 'error');
-                    document.getElementById('codigoInput').value = '';
-                    document.getElementById('codigoInput').focus();
+                    throw new Error(result.message || 'Error en la verificación');
                 }
                 
             } catch (error) {
-                showMessage('Error de conexión: ' + error.message, 'error');
+                console.error('❌ Error en verificación:', error);
+                
+                // Manejo específico de errores comunes
+                let userMessage = error.message;
+                if (error.message.includes('500')) {
+                    userMessage = 'Error interno del servidor. Por favor intente nuevamente.';
+                } else if (error.message.includes('404')) {
+                    userMessage = 'Servicio no encontrado. Contacte al administrador.';
+                } else if (error.message.includes('network')) {
+                    userMessage = 'Error de conexión. Verifique su internet.';
+                }
+                
+                showMessage(`❌ ${userMessage}`, 'error');
+                document.getElementById('codigoInput').value = '';
+                document.getElementById('codigoInput').focus();
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = '✅ Verificar y Guardar';
@@ -2631,18 +2759,37 @@
 
         async function reenviarCodigo(email) {
             try {
+                console.log('🔄 Reenviando código a:', email);
+                
                 const response = await fetch('/api/inscripciones/enviar-codigo', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
                     body: JSON.stringify({
                         email: email,
                         datosInscripcion: inscripcionTemporal
                     })
                 });
                 
-                const result = await response.json();
+                console.log('📨 Respuesta reenvío:', response.status, response.statusText);
                 
-                if (response.ok) {
+                if (!response.ok) {
+                    let errorMessage = 'Error reenviando código';
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorData.error || errorMessage;
+                    } catch (e) {
+                        errorMessage = `Error ${response.status}: ${response.statusText}`;
+                    }
+                    throw new Error(errorMessage);
+                }
+                
+                const result = await response.json();
+                console.log('✅ Código reenviado exitosamente');
+                
+                if (result.success !== false) {
                     showMessage('📧 Código reenviado exitosamente', 'success');
                     document.getElementById('codigoInput').value = '';
                     document.getElementById('codigoInput').focus();
@@ -2651,7 +2798,16 @@
                 }
                 
             } catch (error) {
-                showMessage('Error reenviando código: ' + error.message, 'error');
+                console.error('❌ Error reenviando código:', error);
+                
+                let userMessage = error.message;
+                if (error.message.includes('500')) {
+                    userMessage = 'Error del servidor. Intente nuevamente.';
+                } else if (error.message.includes('network')) {
+                    userMessage = 'Error de conexión. Verifique su internet.';
+                }
+                
+                showMessage(`❌ ${userMessage}`, 'error');
             }
         }
 
@@ -2664,6 +2820,17 @@
         }
 
         function showSuccessModal(inscripcionData) {
+            // Determinar el texto para mostrar sobre el polo
+            let poloInfo = '';
+            if (inscripcionData.deseaPolo === 'SI') {
+                poloInfo = `<strong>👕 Polo:</strong> SÍ - Talla ${inscripcionData.talla}<br>`;
+            } else {
+                poloInfo = `<strong>👕 Polo:</strong> NO solicitado<br>`;
+            }
+            
+            // Asegurar que siempre muestre CONFIRMADO
+            const estado = inscripcionData.estado || 'CONFIRMADO';
+            
             const modalContent = `
                 <button class="modal-close" onclick="hideAllForms()" title="Cerrar">×</button>
                 <div style="text-align: center; padding: 30px;">
@@ -2673,18 +2840,19 @@
                     <div style="background: #f0fff4; border: 2px solid #48bb78; border-radius: 12px; padding: 20px; margin: 20px 0;">
                         <h4 style="color: #22543d; margin-bottom: 15px;">📋 Datos de su inscripción:</h4>
                         <div style="text-align: left; max-width: 400px; margin: 0 auto;">
-                            <strong>🔢 Número de Inscripción:</strong> ${inscripcionData.NRO}<br>
+                            <strong>🔢 Número de Inscripción:</strong> ${inscripcionData.NRO || 'Asignado'}<br>
                             <strong>👤 Participante:</strong> ${inscripcionData.nombres} ${inscripcionData.apellidos}<br>
                             <strong>🏁 Tipo:</strong> ${inscripcionData.tripulante}<br>
                             <strong>📻 Grupo:</strong> ${inscripcionData.grupo}<br>
                             <strong>📡 Frecuencia:</strong> ${inscripcionData.frecuencia} MHz<br>
+                            ${poloInfo}
                             <strong>📅 Llegada:</strong> ${inscripcionData.diaLlegada}<br>
-                            <strong>✅ Estado:</strong> ${inscripcionData.estado}
+                            <strong>✅ Estado:</strong> ${estado}
                         </div>
                     </div>
                     
                     <p style="color: #718096; margin: 20px 0;">
-                        Su inscripción ha sido registrada exitosamente. Recibirá un email de confirmación con todos los detalles.
+                        Su inscripción ha sido registrada exitosamente y está <strong>CONFIRMADA</strong>. Recibirá un email de confirmación con todos los detalles.
                     </p>
                     
                     <div style="display: flex; gap: 12px; justify-content: center; margin-top: 25px;">
