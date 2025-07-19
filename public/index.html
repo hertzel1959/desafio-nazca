@@ -1534,10 +1534,10 @@
         <nav class="nav-sections">
             <div class="nav-sections-container">
                 <a class="nav-section-item" href="#" onclick="showDisclaimer()">🧑‍🤝‍🧑 Inscripciones</a>
-                <a class="nav-section-item" href="#videos" onclick="scrollToVideos()">🎥 Videos</a>
+                <a class="nav-section-item" href="#" onclick="scrollToVideos()">🎥 Videos</a>
                 <a class="nav-section-item" href="#cronograma">📅 Cronograma</a>
                 <a class="nav-section-item" href="#requisitos">📋 Requisitos</a>
-                <a class="nav-section-item" href="#organizacion">🏢 Organización</a>
+                <a class="nav-section-item" href="#" onclick="scrollToOrganizacion()">🏢 Organización</a>
             </div>
         </nav>
 
@@ -1847,6 +1847,7 @@
             
             if (!videoUrl) {
                 console.error('❌ URL de video no válida');
+                showMessage('🎬 Video no disponible', 'error');
                 return;
             }
             
@@ -1867,6 +1868,14 @@
                                 <source src="" type="video/mp4">
                                 Tu navegador no soporta videos HTML5.
                             </video>
+                            <div id="videoErrorMessage" style="display: none; text-align: center; color: white; padding: 40px;">
+                                <div style="font-size: 3rem; margin-bottom: 15px;">⚠️</div>
+                                <h3>Video no disponible</h3>
+                                <p>El archivo de video no está disponible en este momento.</p>
+                                <button onclick="cerrarVideoModal()" style="background: #8b5a3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 15px;">
+                                    Cerrar
+                                </button>
+                            </div>
                         </div>
                         <div class="video-modal-info">
                             <p id="videoModalDescription"></p>
@@ -1894,7 +1903,37 @@
             document.getElementById('videoModalDescription').textContent = descripcion || 'Sin descripción';
             document.getElementById('videoModalCategory').textContent = getCategoryName(categoria);
             document.getElementById('videoModalViews').textContent = `👁 ${vistas} vistas`;
-            document.getElementById('videoModalPlayer').src = videoUrl;
+            
+            const player = document.getElementById('videoModalPlayer');
+            const errorMessage = document.getElementById('videoErrorMessage');
+            
+            // Resetear estado
+            player.style.display = 'block';
+            errorMessage.style.display = 'none';
+            
+            // Manejar errores de video
+            player.onerror = function() {
+                console.error('❌ Error cargando video:', videoUrl);
+                player.style.display = 'none';
+                errorMessage.style.display = 'block';
+                showMessage('🎬 Error cargando video', 'error');
+            };
+            
+            // Verificar si el video existe antes de asignarlo
+            const testVideo = document.createElement('video');
+            testVideo.onerror = function() {
+                console.error('❌ Video no encontrado (404):', videoUrl);
+                player.style.display = 'none';
+                errorMessage.style.display = 'block';
+            };
+            
+            testVideo.oncanplaythrough = function() {
+                console.log('✅ Video validado, reproduciendo:', videoUrl);
+                player.src = videoUrl;
+            };
+            
+            // Intentar cargar el video
+            testVideo.src = videoUrl;
             
             // Mostrar modal
             modal.style.display = 'block';
@@ -1916,11 +1955,6 @@
             }
             
             console.log('❌ Modal de video cerrado');
-        }
-
-        function updateNavigationWithVideos() {
-            // La navegación ya incluye el enlace a videos, no necesitamos agregarlo dinámicamente
-            console.log('✅ Navegación de videos ya configurada');
         }
 
         function scrollToVideos() {
@@ -1979,12 +2013,30 @@
             let organizacionSection = document.getElementById('organizacionSection');
             console.log('📍 Sección de organización encontrada:', organizacionSection ? 'SÍ' : 'NO');
             
-            // Si no existe la sección, crearla dinámicamente
-            if (!organizacionSection) {
-                console.log('🔧 Creando sección de organización dinámicamente...');
+            if (organizacionSection) {
+                // Forzar visibilidad
+                organizacionSection.style.display = 'block';
+                organizacionSection.style.visibility = 'visible';
+                
+                console.log('👀 Sección hecha visible, iniciando scroll...');
+                
+                // Hacer scroll con timeout para asegurar que se renderice
+                setTimeout(() => {
+                    organizacionSection.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    console.log('✅ Scroll ejecutado hacia organización');
+                }, 100);
+                
+            } else {
+                console.log('🔧 Sección no encontrada, creando dinámicamente...');
+                
+                // Crear sección dinámicamente
                 organizacionSection = document.createElement('section');
                 organizacionSection.id = 'organizacionSection';
                 organizacionSection.className = 'organizacion-section';
+                organizacionSection.style.display = 'block';
                 organizacionSection.innerHTML = `
                     <h2>🏢 ORGANIZACIÓN DEL EVENTO</h2>
                     <p>Conoce al equipo coordinador del Desafío Dunas de Nazca 2025</p>
@@ -2037,18 +2089,16 @@
                 }
                 
                 console.log('✅ Sección de organización creada');
+                
+                // Hacer scroll después de crear
+                setTimeout(() => {
+                    organizacionSection.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    console.log('✅ Scroll ejecutado hacia nueva sección');
+                }, 200);
             }
-            
-            // Asegurar que la sección sea visible
-            organizacionSection.style.display = 'block';
-            
-            // Hacer scroll hacia la sección
-            organizacionSection.scrollIntoView({ 
-                behavior: 'smooth',
-                block: 'start'
-            });
-            
-            console.log('✅ Navegando hacia sección de organización');
         }
 
         // ===============================
@@ -2176,7 +2226,16 @@
         }
 
         function showInscripcionForm() {
-            const gruposOptions = frecuenciasData.map(freq => 
+            // Ordenar grupos alfabéticamente y convertir a mayúsculas
+            const gruposOrdenados = frecuenciasData
+                .sort((a, b) => a.grupo.localeCompare(b.grupo))
+                .map(freq => ({
+                    ...freq,
+                    grupo: freq.grupo.toUpperCase(),
+                    contacto: freq.contacto ? freq.contacto.toUpperCase() : ''
+                }));
+            
+            const gruposOptions = gruposOrdenados.map(freq => 
                 `<option value="${freq.grupo}" data-frecuencia="${freq.frecuencia}" data-lider="${freq.contacto || ''}">
                     ${freq.grupo}
                 </option>`
@@ -2235,12 +2294,12 @@
                     
                     <div class="form-group">
                         <label>Nombres:</label>
-                        <input type="text" name="nombres" required maxlength="50" placeholder="Ej: Juan Carlos">
+                        <input type="text" name="nombres" required maxlength="50" placeholder="Ej: JUAN CARLOS" oninput="this.value = this.value.toUpperCase()">
                     </div>
                     
                     <div class="form-group">
                         <label>Apellidos:</label>
-                        <input type="text" name="apellidos" required maxlength="50" placeholder="Ej: García López">
+                        <input type="text" name="apellidos" required maxlength="50" placeholder="Ej: GARCÍA LÓPEZ" oninput="this.value = this.value.toUpperCase()">
                     </div>
                     
                     <div class="form-group">
@@ -2295,7 +2354,7 @@
                     
                     <div class="form-group">
                         <label>Persona de Contacto:</label>
-                        <input type="text" name="personaContacto" required maxlength="100" placeholder="Nombre de contacto de emergencia">
+                        <input type="text" name="personaContacto" required maxlength="100" placeholder="NOMBRE DE CONTACTO DE EMERGENCIA" oninput="this.value = this.value.toUpperCase()">
                     </div>
                     
                     <div class="form-group">
@@ -2383,7 +2442,7 @@
                 const lider = selectedOption.getAttribute('data-lider');
                 
                 frecuenciaInput.value = frecuencia + ' MHz';
-                liderInput.value = lider || 'Sin asignar';
+                liderInput.value = lider ? lider.toUpperCase() : 'SIN ASIGNAR';
                 
                 // Crear campos hidden
                 let frecuenciaHidden = document.getElementById('frecuenciaHidden');
@@ -2406,7 +2465,10 @@
                 }
                 
                 frecuenciaHidden.value = frecuencia;
-                contactoHidden.value = lider || '';
+                contactoHidden.value = lider ? lider.toUpperCase() : '';
+            } else {
+                frecuenciaInput.value = '';
+                liderInput.value = '';
             }
         }
 
@@ -2421,6 +2483,13 @@
             try {
                 const formData = new FormData(event.target);
                 const data = Object.fromEntries(formData.entries());
+                
+                // Convertir campos específicos a mayúsculas
+                data.nombres = data.nombres.toUpperCase();
+                data.apellidos = data.apellidos.toUpperCase();
+                data.personaContacto = data.personaContacto.toUpperCase();
+                data.grupo = data.grupo.toUpperCase();
+                if (data.contacto) data.contacto = data.contacto.toUpperCase();
                 
                 if (!data.observaciones) delete data.observaciones;
                 
