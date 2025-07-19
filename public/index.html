@@ -1,209 +1,4 @@
-function showInscripcionForm() {
-            // Ordenar grupos alfabéticamente y convertir a mayúsculas
-            const gruposOrdenados = frecuenciasData
-                .sort((a, b) => a.grupo.localeCompare(b.grupo))
-                .map(freq => ({
-                    ...freq,
-                    grupo: freq.grupo.toUpperCase(),
-                    contacto: freq.contacto ? freq.contacto.toUpperCase() : ''
-                }));
-            
-            const gruposOptions = gruposOrdenados.map(freq => 
-                `<option value="${freq.grupo}" data-frecuencia="${freq.frecuencia}" data-lider="${freq.contacto || ''}">
-                    ${freq.grupo}
-                </option>`
-            ).join('');
-            
-            const formContent = `
-                <button class="modal-close" onclick="hideAllForms()" title="Cerrar">×</button>
-                <h3 style="text-align: center; margin-bottom: 25px; color: #8b5a3c;">📝 Inscripción - Desafío Dunas de Nazca 2025</h3>
-                <form class="admin-form" onsubmit="saveInscripcion(event)">
-                    <div class="form-group" style="grid-column: 1/-1; background: #f8fafc; padding: 20px; border-radius: 12px; border: 2px solid #8b5a3c; margin-bottom: 25px;">
-                        <h4 style="color: #8b5a3c; margin: 0 0 15px 0; text-align: center;">📻 SELECCIÓN DEL GRUPO/FRECUENCIA</h4>
-                        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px; align-items: end;">
-                            <div class="form-group" style="margin: 0;">
-                                <label style="font-weight: 700; color: #8b5a3c;">Seleccionar Grupo:</label>
-                                <select id="grupoSelect" name="grupo" required onchange="updateGrupoDetails(this)" style="border: 2px solid #8b5a3c;">
-                                    <option value="">🔽 Seleccionar grupo...</option>
-                                    ${gruposOptions}
-                                </select>
-                            </div>
-                            <div class="form-group" style="margin: 0;">
-                                <label style="font-weight: 700; color: #8b5a3c;">Frecuencia (MHz):</label>
-                                <input type="text" id="grupoFrecuencia" readonly style="background: #f0f9ff; border: 2px solid #ddd; font-weight: 600; text-align: center;" placeholder="---">
-                            </div>
-                            <div class="form-group" style="margin: 0;">
-                                <label style="font-weight: 700; color: #8b5a3c;">Líder del Grupo:</label>
-                                <input type="text" id="grupoLider" readonly style="background: #f0f9ff; border: 2px solid #ddd; font-weight: 600;" placeholder="Sin asignar">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group" style="grid-column: 1/-1; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
-                        <h4 style="color: #8b5a3c; margin: 0;">📋 Información de la Inscripción</h4>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label style="color: #1e40af; font-weight: 700;">🔢 Número de Inscripción:</label>
-                        <input type="text" value="Autogenerado" readonly style="background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%); color: #1e40af; font-weight: 700; border: 2px solid #3b82f6; text-align: center; font-size: 18px; cursor: not-allowed;">
-                        <small style="color: #3b82f6; font-weight: 600; font-size: 12px;">🤖 Se generará automáticamente al confirmar la inscripción</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Tipo de Participante:</label>
-                        <select name="tripulante" required>
-                            <option value="">Seleccionar...</option>
-                            <option value="piloto" selected>🏁 Piloto</option>
-                            <option value="copiloto">🧭 Copiloto</option>
-                            <option value="acompañante1">👤 Acompañante 1</option>
-                            <option value="acompañante2">👤 Acompañante 2</option>
-                            <option value="acompañante3">👤 Acompañante 3</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group" style="grid-column: 1/-1; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; margin-top: 20px;">
-                        <h4 style="color: #8b5a3c; margin: 0;">🪪 Datos Personales</h4>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Nombres:</label>
-                        <input type="text" name="nombres" required maxlength="50" placeholder="Ej: JUAN CARLOS" oninput="this.value = this.value.toUpperCase()">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Apellidos:</label>
-                        <input type="text" name="apellidos" required maxlength="50" placeholder="Ej: GARCÍA LÓPEZ" oninput="this.value = this.value.toUpperCase()">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Edad:</label>
-                        <input type="number" name="edad" required min="16" max="80" placeholder="Ej: 25">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Experiencia:</label>
-                        <select name="experiencia" required>
-                            <option value="">Seleccionar...</option>
-                            <option value="Experto">🏆 Experto</option>
-                            <option value="Intermedio" selected>⭐ Intermedio</option>
-                            <option value="Principiante">🔰 Principiante</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Grupo Sanguíneo:</label>
-                        <select name="grupoSanguineo" required>
-                            <option value="">Seleccionar...</option>
-                            <option value="O+" selected>🩸 O+</option>
-                            <option value="O-">🩸 O-</option>
-                            <option value="A+">🩸 A+</option>
-                            <option value="A-">🩸 A-</option>
-                            <option value="B+">🩸 B+</option>
-                            <option value="B-">🩸 B-</option>
-                            <option value="AB+">🩸 AB+</option>
-                            <option value="AB-">🩸 AB-</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>DNI:</label>
-                        <input type="text" name="dni" required pattern="[0-9]{8}" maxlength="8" placeholder="12345678">
-                    </div>
-                    
-                    <div class="form-group" style="grid-column: 1/-1; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; margin-top: 20px;">
-                        <h4 style="color: #8b5a3c; margin: 0;">📞 Información de Contacto</h4>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Email:</label>
-                        <input type="email" name="email" required style="border: 2px solid #3182ce; background: #ebf8ff;" placeholder="ejemplo@email.com">
-                        <small style="color: #3182ce; font-weight: 600;">📧 Recibirá un código de verificación en este email</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Celular:</label>
-                        <input type="tel" name="celular" required placeholder="+51 987654321">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Persona de Contacto:</label>
-                        <input type="text" name="personaContacto" required maxlength="100" placeholder="NOMBRE DE CONTACTO DE EMERGENCIA" oninput="this.value = this.value.toUpperCase()">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Celular de Contacto:</label>
-                        <input type="tel" name="celularContacto" required placeholder="+51 987654322">
-                    </div>
-                    
-                    <div class="form-group" style="grid-column: 1/-1; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; margin-top: 20px;">
-                        <h4 style="color: #8b5a3c; margin: 0;">🏍️ Información del Vehículo</h4>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Tipo de Vehículo:</label>
-                        <select name="tipoVehiculo" required>
-                            <option value="">Seleccionar...</option>
-                            <option value="moto" selected>🏍️ Moto</option>
-                            <option value="cuatrimoto">🛵 Cuatrimoto</option>
-                            <option value="UTV">🚙 UTV</option>
-                            <option value="arenero">🏎️ Arenero</option>
-                            <option value="camioneta">🚚 Camioneta</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Marca:</label>
-                        <input type="text" name="marca" required maxlength="30" placeholder="Honda, Toyota, Polaris...">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Modelo:</label>
-                        <input type="text" name="modelo" required maxlength="30" placeholder="CRF450, Hilux, RZR...">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Año:</label>
-                        <input type="number" name="año" required min="1990" max="2026" placeholder="2023">
-                    </div>
-                    
-                    <div class="form-group" style="grid-column: 1/-1; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; margin-top: 20px;">
-                        <h4 style="color: #8b5a3c; margin: 0;">📅 Información del Evento</h4>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Día de Llegada:</label>
-                        <select name="diaLlegada" required>
-                            <option value="">Seleccionar...</option>
-                            <option value="miercoles">📅 Miércoles</option>
-                            <option value="jueves">📅 Jueves</option>
-                            <option value="viernes" selected>📅 Viernes</option>
-                            <option value="sabado">📅 Sábado</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Estado:</label>
-                        <select name="estado">
-                            <option value="PENDIENTE" selected>⏳ Pendiente</option>
-                            <option value="CONFIRMADO">✅ Confirmado</option>
-                            <option value="CANCELADO">❌ Cancelado</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group" style="grid-column: 1/-1;">
-                        <label>Observaciones:</label>
-                        <textarea name="observaciones" rows="3" maxlength="500" placeholder="Información adicional, alergias, medicamentos, experiencias previas, etc."></textarea>
-                    </div>
-                    
-                    <div class="form-buttons">
-                        <button type="button" class="btn btn-danger" onclick="hideAllForms()">Cancelar</button>
-                        <button type="submit" class="btn btn-success" style="font-size: 16px; padding: 12px 24px;">📧 Enviar Código de Verificación</button>
-                    </div>
-                </form>
-            `;
-            
-            showFormModal(formContent);
-        }<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8"/>
@@ -1739,10 +1534,10 @@ function showInscripcionForm() {
         <nav class="nav-sections">
             <div class="nav-sections-container">
                 <a class="nav-section-item" href="#" onclick="showDisclaimer()">🧑‍🤝‍🧑 Inscripciones</a>
-                <a class="nav-section-item" href="#" onclick="scrollToVideos()">🎥 Videos</a>
+                <a class="nav-section-item" href="#videos" onclick="scrollToVideos()">🎥 Videos</a>
                 <a class="nav-section-item" href="#cronograma">📅 Cronograma</a>
                 <a class="nav-section-item" href="#requisitos">📋 Requisitos</a>
-                <a class="nav-section-item" href="#" onclick="scrollToOrganizacion()">🏢 Organización</a>
+                <a class="nav-section-item" href="#organizacion">🏢 Organización</a>
             </div>
         </nav>
 
@@ -2184,30 +1979,12 @@ function showInscripcionForm() {
             let organizacionSection = document.getElementById('organizacionSection');
             console.log('📍 Sección de organización encontrada:', organizacionSection ? 'SÍ' : 'NO');
             
-            if (organizacionSection) {
-                // Forzar visibilidad
-                organizacionSection.style.display = 'block';
-                organizacionSection.style.visibility = 'visible';
-                
-                console.log('👀 Sección hecha visible, iniciando scroll...');
-                
-                // Hacer scroll con timeout para asegurar que se renderice
-                setTimeout(() => {
-                    organizacionSection.scrollIntoView({ 
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                    console.log('✅ Scroll ejecutado hacia organización');
-                }, 100);
-                
-            } else {
-                console.log('🔧 Sección no encontrada, creando dinámicamente...');
-                
-                // Crear sección dinámicamente
+            // Si no existe la sección, crearla dinámicamente
+            if (!organizacionSection) {
+                console.log('🔧 Creando sección de organización dinámicamente...');
                 organizacionSection = document.createElement('section');
                 organizacionSection.id = 'organizacionSection';
                 organizacionSection.className = 'organizacion-section';
-                organizacionSection.style.display = 'block';
                 organizacionSection.innerHTML = `
                     <h2>🏢 ORGANIZACIÓN DEL EVENTO</h2>
                     <p>Conoce al equipo coordinador del Desafío Dunas de Nazca 2025</p>
@@ -2260,16 +2037,18 @@ function showInscripcionForm() {
                 }
                 
                 console.log('✅ Sección de organización creada');
-                
-                // Hacer scroll después de crear
-                setTimeout(() => {
-                    organizacionSection.scrollIntoView({ 
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                    console.log('✅ Scroll ejecutado hacia nueva sección');
-                }, 200);
             }
+            
+            // Asegurar que la sección sea visible
+            organizacionSection.style.display = 'block';
+            
+            // Hacer scroll hacia la sección
+            organizacionSection.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+            
+            console.log('✅ Navegando hacia sección de organización');
         }
 
         // ===============================
@@ -2604,7 +2383,7 @@ function showInscripcionForm() {
                 const lider = selectedOption.getAttribute('data-lider');
                 
                 frecuenciaInput.value = frecuencia + ' MHz';
-                liderInput.value = lider ? lider.toUpperCase() : 'SIN ASIGNAR';
+                liderInput.value = lider || 'Sin asignar';
                 
                 // Crear campos hidden
                 let frecuenciaHidden = document.getElementById('frecuenciaHidden');
@@ -2627,10 +2406,7 @@ function showInscripcionForm() {
                 }
                 
                 frecuenciaHidden.value = frecuencia;
-                contactoHidden.value = lider ? lider.toUpperCase() : '';
-            } else {
-                frecuenciaInput.value = '';
-                liderInput.value = '';
+                contactoHidden.value = lider || '';
             }
         }
 
@@ -2645,13 +2421,6 @@ function showInscripcionForm() {
             try {
                 const formData = new FormData(event.target);
                 const data = Object.fromEntries(formData.entries());
-                
-                // Convertir campos específicos a mayúsculas
-                data.nombres = data.nombres.toUpperCase();
-                data.apellidos = data.apellidos.toUpperCase();
-                data.personaContacto = data.personaContacto.toUpperCase();
-                data.grupo = data.grupo.toUpperCase();
-                if (data.contacto) data.contacto = data.contacto.toUpperCase();
                 
                 if (!data.observaciones) delete data.observaciones;
                 
