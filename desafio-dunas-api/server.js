@@ -129,7 +129,7 @@ app.post('/api/frecuencias', async (req, res) => {
         const nuevaFrecuencia = new Frecuencia({
             id: nuevoId,
             grupo: grupo.trim(),
-            frecuencia: parseFloat(frecuencia),
+            frecuencia: parseFloat(frecuencia).toFixed(3),
             email: email?.trim() || '',
             contacto: contacto?.trim() || '',
             telefono: telefono?.trim() || ''
@@ -172,7 +172,7 @@ app.put('/api/frecuencias/:id', async (req, res) => {
             { id: idFrecuencia, activo: true },
             {
                 grupo: grupo.trim(),
-                frecuencia: parseFloat(frecuencia),
+                frecuencia: parseFloat(frecuencia).toFixed(3),
                 email: email?.trim() || '',
                 contacto: contacto?.trim() || '',
                 telefono: telefono?.trim() || '',

@@ -2452,8 +2452,9 @@
             if (selectedOption && selectedOption.value) {
                 const frecuencia = selectedOption.getAttribute('data-frecuencia');
                 const lider = selectedOption.getAttribute('data-lider');
-                
-                frecuenciaInput.value = frecuencia + ' MHz';
+                 // Formatear frecuencia a 3 decimales
+                const frecuenciaFormateada = parseFloat(frecuencia).toFixed(3);
+                frecuenciaInput.value = frecuenciaFormateada  + ' MHz';
                 liderInput.value = lider ? lider.toUpperCase() : 'SIN ASIGNAR';
                 
                 // Crear campos hidden
