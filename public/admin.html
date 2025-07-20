@@ -1273,7 +1273,7 @@ async function loadVideos() {
                             📻 ${i.grupo || '-'}
                         </div>
                         <div style="font-size: 12px; color: #718096;">
-                            📡 ${i.frecuencia ? i.frecuencia + ' MHz' : 'Sin asignar'}<br>
+                            📡 ${i.frecuencia ? parseFloat(i.frecuencia).toFixed(3) + ' MHz' : 'Sin asignar'}<br>
                             👨‍✈️ ${i.liderGrupo || 'Sin líder'}
                         </div>
                     </td>
