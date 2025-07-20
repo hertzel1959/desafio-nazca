@@ -3135,6 +3135,113 @@ case 'videos':
 */
 
 console.log('✅ Funciones de videos cargadas correctamente');
+// ✅ RUTAS DE DEBUG PARA EL SERVIDOR
+// Agregar estas rutas a tu archivo de rutas (routes/api.js o similar)
+
+// Ruta para consultar estado de la base de datos de videos
+app.get('/api/debug/database', async (req, res) => {
+    try {
+        // Asumiendo que tienes un modelo Video
+        const Video = require('../models/Video'); // Ajusta la ruta según tu estructura
+        
+        // Obtener estadísticas
+        const total = await Video.countDocuments();
+        const published = await Video.countDocuments({ status: 'published' });
+        const draft = await Video.countDocuments({ status: 'draft' });
+        
+        // Obtener lista de videos
+        const videos = await Video.find({}, 'id title status filename createdAt').lean();
+        
+        const result = {
+            total,
+            published,
+            draft,
+            videos: videos.map(v => ({
+                id: v._id || v.id,
+                title: v.title,
+                status: v.status,
+                filename: v.filename,
+                createdAt: v.createdAt
+            }))
+        };
+        
+        console.log('🐛 Debug database query:', result);
+        res.json(result);
+        
+    } catch (error) {
+        console.error('❌ Error en debug database:', error);
+        res.status(500).json({
+            error: 'Error consultando base de datos',
+            message: error.message,
+            total: 0,
+            published: 0,
+            draft: 0,
+            videos: []
+        });
+    }
+});
+
+// Ruta para resetear base de datos de videos
+app.post('/api/debug/reset-database', async (req, res) => {
+    try {
+        const Video = require('../models/Video'); // Ajusta la ruta según tu estructura
+        
+        // Obtener conteo antes del reset
+        const countBefore = await Video.countDocuments();
+        
+        // Eliminar todos los videos de la base de datos
+        const result = await Video.deleteMany({});
+        
+        console.log(`🔄 Base de datos reseteada: ${countBefore} videos eliminados`);
+        
+        res.json({
+            success: true,
+            message: 'Base de datos reseteada exitosamente',
+            deletedCount: result.deletedCount,
+            countBefore
+        });
+        
+    } catch (error) {
+        console.error('❌ Error reseteando base de datos:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error reseteando base de datos',
+            message: error.message
+        });
+    }
+});
+
+// Ruta de estadísticas de videos (si no existe)
+app.get('/api/videos/stats', async (req, res) => {
+    try {
+        const Video = require('../models/Video'); // Ajusta la ruta según tu estructura
+        
+        const total = await Video.countDocuments();
+        const published = await Video.countDocuments({ status: 'published' });
+        const draft = await Video.countDocuments({ status: 'draft' });
+        
+        res.json({
+            data: {
+                total,
+                published,
+                draft
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Error obteniendo estadísticas:', error);
+        res.status(500).json({
+            error: 'Error obteniendo estadísticas',
+            data: { total: 0, published: 0, draft: 0 }
+        });
+    }
+});
+
+console.log('✅ Rutas de debug cargadas');
+
+
+
+
     // ✅ AGREGAR ESTA FUNCIÓN TEMPORAL EN ADMIN.HTML (después de las otras funciones)
 async function debugLoadVideos() {
     console.log('\n🐛 ========== DEBUG LOAD VIDEOS ==========');
