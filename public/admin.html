@@ -1614,7 +1614,9 @@ async function loadVideos() {
                 const lider = selectedOption.getAttribute('data-lider');
                 
                 if (frecuenciaInput) {
-                    frecuenciaInput.value = frecuencia + ' MHz';
+                    // Formatear frecuencia a 3 decimales
+                    const frecuenciaFormateada = parseFloat(frecuencia).toFixed(3);
+                    frecuenciaInput.value = frecuenciaFormateada + ' MHz';
                     frecuenciaInput.style.color = '#8b5a3c';
                     frecuenciaInput.style.fontWeight = '700';
                 }

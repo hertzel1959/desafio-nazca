@@ -499,7 +499,7 @@ mongoose.connection.on('reconnected', () => {
     console.log('✅ MongoDB reconectado');
 });
 
-
+/*
 // Manejo de cierre graceful
 process.on('SIGINT', async () => {
     console.log('\n🛑 Cerrando servidor...');
@@ -507,3 +507,42 @@ process.on('SIGINT', async () => {
     console.log('✅ Conexión MongoDB cerrada');
     process.exit(0);
 });
+*/
+// Manejo de cierre (CORRECTO)
+process.on('SIGINT', async function() {  // ← Función async
+    console.log('🛑 Cerrando aplicación...');
+    
+    try {
+        await mongoose.connection.close();  // ← SIN CALLBACK
+        console.log('✅ Conexión cerrada correctamente');
+        process.exit(0);
+    } catch (error) {
+        console.error('❌ Error cerrando:', error);
+        process.exit(1);
+    }
+});
+
+// Para Render específicamente
+process.on('SIGTERM', async function() {  // ← Señal que usa Render
+    console.log('🛑 SIGTERM recibido...');
+    
+    try {
+        await mongoose.connection.close();  // ← SIN CALLBACK
+        console.log('✅ Aplicación cerrada gracefully');
+        process.exit(0);
+    } catch (error) {
+        console.error('❌ Error en cierre graceful:', error);
+        process.exit(1);
+    }
+});
+
+// Iniciar todo
+async function iniciar() {
+    await conectarDB();
+    
+    const server = app.listen(3000, () => {
+        console.log('🚀 Servidor corriendo en puerto 3000');
+    });
+}
+
+iniciar();

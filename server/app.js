@@ -558,7 +558,7 @@ mongoose.connect(MONGODB_URI, {
         console.log('⚠️ Email no configurado (revisar .env)');
     }
     */
-   
+
     // ✅ REEMPLAZAR CON SOLO ESTO:
     console.log('📧 EmailService configurado');
 
@@ -646,18 +646,26 @@ app.use((error, req, res, next) => {
 process.on('SIGTERM', gracefulShutdown);
 process.on('SIGINT', gracefulShutdown);
 
-function gracefulShutdown(signal) {
-    console.log(`\n📡 Recibida señal ${signal}. Cerrando servidor...`);
+// ✅ FUNCIÓN CORREGIDA - Reemplaza desde la línea 9 hasta la línea 38
+
+async function gracefulShutdown(signal) {
+    console.log(`\n🛑 Recibida señal ${signal}. Cerrando servidor...`);
     
-    server.close(() => {
-        console.log('🔌 Servidor HTTP cerrado.');
+    // Cerrar servidor HTTP
+    server.close(async () => {
+        console.log('🔒 Servidor HTTP cerrado.');
         
-        mongoose.connection.close(false, () => {
-            console.log('🔌 Conexión MongoDB cerrada.');
+        try {
+            // ✅ LÍNEA CORREGIDA - SIN CALLBACK
+            await mongoose.connection.close();
+            console.log('🔒 Conexión MongoDB cerrada.');
             process.exit(0);
-        });
+        } catch (error) {
+            console.error('❌ Error cerrando MongoDB:', error);
+            process.exit(1);
+        }
     });
-    
+
     // Forzar cierre después de 30 segundos
     setTimeout(() => {
         console.error('⚠️ Forzando cierre del proceso...');
