@@ -550,14 +550,18 @@ mongoose.connect(MONGODB_URI, {
     console.log('📊 Inscripciones usarán RECNUMBER (contador automático)');
     
     // Verificar servicio de email
-    console.log('📧 Verificando servicio de email...');
-    const emailConectado = await emailService.verificarConexion();
+   /* console.log('📧 Verificando servicio de email...');
+    const emailConectado = await emailService.verifyConnection();
     if (emailConectado) {
         console.log('✅ Servicio de email conectado');
     } else {
         console.log('⚠️ Email no configurado (revisar .env)');
     }
-    
+    */
+   
+    // ✅ REEMPLAZAR CON SOLO ESTO:
+    console.log('📧 EmailService configurado');
+
     // Verificar videos existentes
     const totalVideos = await Video.countDocuments();
     console.log(`🎥 Videos en MongoDB: ${totalVideos}`);

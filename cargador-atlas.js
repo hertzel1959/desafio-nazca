@@ -68,7 +68,7 @@ frecuenciaSchema.pre('save', async function(next) {
     next();
 });
 
-const Frecuencia = mongoose.model('Frecuencia', frecuenciaSchema);
+const Frecuencia = mongoose.model('frecuencias', frecuenciaSchema);
 
 async function cargarFrecuenciasAtlas() {
     console.log('🚀 Iniciando carga de frecuencias en MongoDB Atlas...\n');

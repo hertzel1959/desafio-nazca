@@ -7,6 +7,9 @@ const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
 const app = express();
+// ✅ AGREGAR ESTA LÍNEA:
+const counterService = require('./services/counterService');
+
 
 // Middleware
 app.use(cors());
@@ -27,7 +30,10 @@ const frequencySchema = new mongoose.Schema({
     fechaActualizacion: { type: Date, default: Date.now }
 });
 
-const Frequency = mongoose.model('Frequency', frequencySchema);
+
+// ✅ POR ESTO:
+const Frequency = mongoose.model('Frequency', frequencySchema, 'frecuencias');
+
 
 // Esquema de Participantes (actualizado)
 const participantSchema = new mongoose.Schema({
@@ -431,7 +437,30 @@ app.get('/api/health', (req, res) => {
         totalGrupos: frequenciesData.length
     });
 });
+// ===== AGREGAR ESTAS LÍNEAS AL server.js =====
 
+// Importar rutas de inscripciones
+const inscripcionesRoutes = require('./routes/inscripciones');
+
+// Usar las rutas
+app.use('/api/inscripciones', inscripcionesRoutes);
+
+// Agregar ruta de compatibilidad para frecuencias
+app.get('/api/frecuencias', async (req, res) => {
+    try {
+        const frequencies = await Frequency.find({ activo: true }).sort({ numero: 1 });
+        // Mapear al formato que espera el frontend
+        const frecuenciasFormateadas = frequencies.map(freq => ({
+            grupo: freq.grupo,
+            frecuencia: freq.frecuencias.toString(),
+            contacto: freq.contacto
+        }));
+        res.json(frecuenciasFormateadas);
+    } catch (error) {
+        console.error('Error obteniendo frecuencias:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
 // Manejo de errores 404
 app.use((req, res) => {
     res.status(404).json({ error: 'Ruta no encontrada' });
@@ -449,6 +478,11 @@ mongoose.connect(MONGODB_URI)
     .then(async () => {
         console.log('✅ MongoDB conectado exitosamente');
         await initializeFrequencies();
+         // Inicializar contadores
+        //await counterService.initCounter('inscripciones', 'NRO');
+        // ✅ CAMBIAR POR:
+        counterService.initCounter('inscripciones', 'NRO');
+        console.log('🔢 Contadores inicializados');
     })
     .catch(err => console.error('❌ Error conectando MongoDB:', err));
 

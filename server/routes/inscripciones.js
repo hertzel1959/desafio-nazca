@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+
 const {
   getAllInscripciones,
   getInscripcionById,
@@ -11,6 +12,7 @@ const {
   getInscripcionesStats,
   getGruposDisponibles
 } = require('../controllers/inscripcionController');
+
 const emailService = require('../services/emailService');
 
 // Mapa temporal para códigos de verificación
@@ -21,84 +23,72 @@ router.use((req, res, next) => {
   console.log(`🛣️ ${req.method} ${req.originalUrl} - ${new Date().toISOString()}`);
   next();
 });
-
+router.get('/stats', getInscripcionesStats);
+router.get('/grupos', getGruposDisponibles);
+router.get('/equipo/:equipoId', getEquipoById);
+router.get('/', getAllInscripciones);
+router.get('/:id', getInscripcionById);
+router.post('/equipo', createEquipo);
+router.post('/', createInscripcion);
 // @route   GET /api/inscripciones/stats
 // @desc    Obtener estadísticas completas de inscripciones
 // @access  Public
-// @return  { total, totalEquipos, porTripulante, porEstado, porTipoVehiculo, etc. }
-router.get('/stats', getInscripcionesStats);
-
 // @route   GET /api/inscripciones/grupos
 // @desc    Obtener grupos disponibles desde tabla de frecuencias
 // @access  Public
-// @return  [{ nombre, frecuencia, lider }]
-router.get('/grupos', getGruposDisponibles);
-
 // @route   GET /api/inscripciones/equipo/:equipoId
 // @desc    Obtener todos los miembros de un equipo específico
 // @access  Public
-// @param   equipoId - Número de equipo
-// @return  { N_equipo, miembros[], totalMiembros, grupo, frecuencia, liderGrupo }
-router.get('/equipo/:equipoId', getEquipoById);
-
 // @route   GET /api/inscripciones
 // @desc    Obtener todas las inscripciones (con filtros y paginación)
 // @access  Public
-// @query   ?page=1&limit=50&tripulante=piloto&estado=CONFIRMADO&grupo=Fugitivos&tipoVehiculo=moto&diaLlegada=viernes&experiencia=Experto&search=juan&N_equipo=5
-router.get('/', getAllInscripciones);
-
 // @route   GET /api/inscripciones/:id
 // @desc    Obtener inscripción por NRO
 // @access  Public
-router.get('/:id', getInscripcionById);
-
 // @route   POST /api/inscripciones/equipo
 // @desc    Crear equipo completo con múltiples miembros
 // @access  Public
-// @body    { miembros: [{ tripulante, nombres, apellidos, ... }, { ... }] }
-router.post('/equipo', createEquipo);
-
 // @route   POST /api/inscripciones
-// @desc    Crear nueva inscripción individual
+// @desc    Crear nueva inscripción individual (ADMIN)
 // @access  Public
-// @body    { 
-//            N_equipo?, tripulante, grupo, nombres, apellidos, edad, experiencia,
-//            grupoSanguineo, dni, email, celular, personaContacto, celularContacto,
-//            tipoVehiculo, marca, modelo, año, diaLlegada, observaciones?
-//          }
-router.post('/', createInscripcion);
 
-// @route   PUT /api/inscripciones/:id
-// @desc    Actualizar inscripción completa
-// @access  Public
-// @body    { 
-//            tripulante?, grupo?, nombres?, apellidos?, edad?, experiencia?,
-//            grupoSanguineo?, dni?, email?, celular?, personaContacto?, celularContacto?,
-//            tipoVehiculo?, marca?, modelo?, año?, diaLlegada?, estado?, observaciones?, activo?
-//          }
+
+// ===============================
+// ENDPOINT 1: Enviar código de verificación
+// ===============================
 router.post('/enviar-codigo', async (req, res) => {
     try {
         const { email, datosInscripcion } = req.body;
 
-        // 🔥 Generar SOLO AQUÍ el código
-        const codigo = Math.floor(100000 + Math.random() * 900000).toString(); // ✅ DESCOMENTA ESTA LÍNEA
+        // Generar código de 6 dígitos
+        const codigo = Math.floor(100000 + Math.random() * 900000).toString();
 
         // Guardar para luego verificar
-        global.codigosVerificacion.set(email, {
+        global.codigosVerificacion.set(email.toLowerCase().trim(), {
             codigo,
             timestamp: Date.now(),
             datosInscripcion,
             intentos: 0,
             expiresAt: Date.now() + (10 * 60 * 1000)
         });
-        // Enviar mail con el MISMO código
-        await emailService.enviarCodigoVerificacion(email, codigo, datosInscripcion);
-        // Devolver el MISMO código en la respuesta
+
+        // Enviar mail con el código
+        try {
+            await emailService.enviarCodigoVerificacion(email, codigo, datosInscripcion);
+            console.log('✅ Email enviado exitosamente');
+        } catch (emailError) {
+            console.error('⚠️ Error enviando email:', emailError);
+            // No fallar el proceso, solo mostrar en debug
+        }
+        
+        // Debug log
+        console.log('🔢 CÓDIGO GENERADO (DEBUG):', codigo);
+        
+        // Devolver respuesta (siempre con código en debug)
         res.json({
             success: true,
             message: 'Código enviado exitosamente',
-            debug: process.env.NODE_ENV === 'development' ? { codigo } : undefined 
-            //debug: process.env.NODE_ENV === 'production' ? { codigo } : undefined
+            debug: { codigo } // Siempre mostrar código mientras arreglamos email
         });
 
     } catch (error) {
@@ -117,19 +107,9 @@ router.post('/enviar-codigo', async (req, res) => {
 router.post('/verificar-codigo', async (req, res) => {
     try {
         const { email, codigo } = req.body;
-        // Buscar código almacenado
-        const datosVerificacion = global.codigosVerificacion.get(email);
-        
-        console.log('🔍 Verificando código para:', email);
-        console.log('Buscando email:', email);
-        console.log('Código recibido del frontend:', codigo); 
-        console.log('🔍 DEBUG - Email buscado:', email.toLowerCase().trim());
-        console.log('🔍 DEBUG - Código recibido:', codigo);
-        console.log('🔍 DEBUG - Datos encontrados:', datosVerificacion ? 'SÍ' : 'NO');
-        if (datosVerificacion) {
-            console.log('🔍 DEBUG - Código guardado:', datosVerificacion.codigo);
-        }
 
+        console.log('🔍 Verificando código para:', email);
+        console.log('🔍 Código recibido:', codigo);
 
         // Validar parámetros
         if (!email || !codigo) {
@@ -138,7 +118,9 @@ router.post('/verificar-codigo', async (req, res) => {
                 message: 'Email y código son requeridos'
             });
         }
-        
+
+        // Buscar código almacenado
+        const datosVerificacion = global.codigosVerificacion.get(email.toLowerCase().trim());
         
         if (!datosVerificacion) {
             return res.status(400).json({
@@ -149,7 +131,7 @@ router.post('/verificar-codigo', async (req, res) => {
         
         // Verificar expiración (10 minutos)
         if (Date.now() > datosVerificacion.expiresAt) {
-            global.codigosVerificacion.delete(email);
+            global.codigosVerificacion.delete(email.toLowerCase().trim());
             return res.status(400).json({
                 success: false,
                 message: 'Código expirado. Solicita uno nuevo.'
@@ -158,7 +140,7 @@ router.post('/verificar-codigo', async (req, res) => {
         
         // Verificar intentos máximos (3 intentos)
         if (datosVerificacion.intentos >= 3) {
-            global.codigosVerificacion.delete(email);
+            global.codigosVerificacion.delete(email.toLowerCase().trim());
             return res.status(400).json({
                 success: false,
                 message: 'Demasiados intentos fallidos. Solicita un código nuevo.'
@@ -179,39 +161,89 @@ router.post('/verificar-codigo', async (req, res) => {
         // Código correcto - proceder a guardar inscripción
         const datosInscripcion = datosVerificacion.datosInscripcion;
         
-        // ⚠️ IMPORTANTE: Aquí necesitas usar tu lógica existente para guardar
-        // Ajusta esto según tu modelo de datos actual
-        
         try {
-            // Ejemplo usando tu modelo existente (ajustar según tu implementación):
-            const Inscripcion = require('../models/Inscripcion'); // Ajustar ruta si es diferente
+            const Inscripcion = require('../models/Inscripcion');
+            
+            // Validar DNI único antes de crear
+            const existeDNI = await Inscripcion.findOne({ 
+                dni: datosInscripcion.dni, 
+                activo: true 
+            });
+            if (existeDNI) {
+                global.codigosVerificacion.delete(email.toLowerCase().trim());
+                return res.status(400).json({
+                    success: false,
+                    message: `El DNI ${datosInscripcion.dni} ya está registrado en el sistema`
+                });
+            }
+
+            // Validar email único antes de crear
+            const existeEmail = await Inscripcion.findOne({ 
+                email: datosInscripcion.email, 
+                activo: true 
+            });
+            if (existeEmail) {
+                global.codigosVerificacion.delete(email.toLowerCase().trim());
+                return res.status(400).json({
+                    success: false,
+                    message: `El email ${datosInscripcion.email} ya está registrado en el sistema`
+                });
+            }
             
             // Crear nueva inscripción
             const nuevaInscripcion = new Inscripcion(datosInscripcion);
             const inscripcionGuardada = await nuevaInscripcion.save();
             
-            console.log('✅ Inscripción guardada en DB:', inscripcionGuardada.N_equipo || inscripcionGuardada._id);
+            console.log('✅ Inscripción guardada en DB:', inscripcionGuardada.NRO);
             
-            // Enviar email de confirmación (no bloquear el proceso si falla)
+            // Enviar email de confirmación
             try {
                 await emailService.enviarConfirmacionInscripcion(email, inscripcionGuardada);
                 console.log('✅ Email de confirmación enviado');
             } catch (emailError) {
-                console.error('⚠️ Error enviando confirmación (inscripción ya guardada):', emailError);
+                console.error('⚠️ Error enviando confirmación:', emailError);
             }
 
-            
             // Limpiar código usado
-            global.codigosVerificacion.delete(email);
+            global.codigosVerificacion.delete(email.toLowerCase().trim());
             
             res.json({
                 success: true,
                 message: 'Código verificado e inscripción guardada exitosamente',
-                data: inscripcionGuardada
+                data: inscripcionGuardada.toPublicJSON ? inscripcionGuardada.toPublicJSON() : inscripcionGuardada
             });
             
         } catch (dbError) {
             console.error('❌ Error guardando en base de datos:', dbError);
+            
+            // Manejo de errores de duplicados
+            if (dbError.code === 11000) {
+                global.codigosVerificacion.delete(email.toLowerCase().trim());
+                
+                if (dbError.keyPattern?.dni) {
+                    return res.status(400).json({
+                        success: false,
+                        message: `El DNI ${dbError.keyValue.dni} ya está registrado en el sistema`
+                    });
+                }
+                if (dbError.keyPattern?.email) {
+                    return res.status(400).json({
+                        success: false,
+                        message: `El email ${dbError.keyValue.email} ya está registrado en el sistema`
+                    });
+                }
+            }
+            
+            // Manejo de errores de validación
+            if (dbError.name === 'ValidationError') {
+                const errores = Object.values(dbError.errors).map(err => err.message);
+                return res.status(400).json({
+                    success: false,
+                    message: 'Error de validación',
+                    errors: errores
+                });
+            }
+            
             res.status(500).json({
                 success: false,
                 message: 'Error guardando inscripción en base de datos',
@@ -228,19 +260,55 @@ router.post('/verificar-codigo', async (req, res) => {
         });
     }
 });
+
+// @route   PUT /api/inscripciones/:id
+// @desc    Actualizar inscripción completa
+// @access  Public
 router.put('/:id', updateInscripcion);
 
 // @route   DELETE /api/inscripciones/:id
 // @desc    Eliminar inscripción (soft delete por defecto, hard delete con ?hard=true)
 // @access  Public
-// @query   ?hard=true (opcional, para eliminación física)
 router.delete('/:id', deleteInscripcion);
 
 // ===============================
-// AL FINAL DEL ARCHIVO (antes de module.exports):
+// ENDPOINT: Test de email
 // ===============================
+router.get('/test-email', async (req, res) => {
+    const email = req.query.email || 'test@ejemplo.com';
+    const codigo = '123456';
 
-// Función auxiliar: Limpiar códigos expirados
+    const datosInscripcion = {
+        nombres: 'Test',
+        apellidos: 'Usuario',
+        tripulante: 'piloto',
+        grupo: 'Test Group',
+        tipoVehiculo: 'moto',
+        marca: 'Test',
+        modelo: 'Test',
+        diaLlegada: 'viernes'
+    };
+
+    try {
+        await emailService.enviarCodigoVerificacion(email, codigo, datosInscripcion);
+        res.json({
+            success: true,
+            message: `Email de prueba enviado a ${email}`,
+            datosInscripcion
+        });
+    } catch (error) {
+        console.error('❌ Error enviando email de prueba:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error enviando email de prueba',
+            error: error.message
+        });
+    }
+});
+
+// ===============================
+// FUNCIÓN AUXILIAR: Limpiar códigos expirados
+// ===============================
 function limpiarCodigosExpirados() {
     const ahora = Date.now();
     for (const [email, datos] of global.codigosVerificacion.entries()) {
@@ -253,67 +321,5 @@ function limpiarCodigosExpirados() {
 
 // Limpiar códigos expirados cada 5 minutos
 setInterval(limpiarCodigosExpirados, 5 * 60 * 1000);
-// ===============================
-// TEST DE ENVÍO DE EMAIL DETALLADO
-// ===============================
-router.get('/test-email', async (req, res) => {
-    const email = req.query.email || 'tucorreo@ejemplo.com';
-
-    const datosInscripcion = {
-        nombres: 'Mabel',
-        apellidos: 'Molina',
-        tripulante: 'Piloto',
-        grupo: 'ChelEROS',
-        tipoVehiculo: 'Moto',
-        marca: 'Suzuki',
-        modelo: '1250',
-        diaLlegada: 'Viernes',
-        N_equipo: 999,
-        frecuencia: 150.00,
-        estado: 'CONFIRMADO'
-    };
-
-    try {
-        await emailService.enviarCodigoVerificacion(email, codigo, datosInscripcion);
-        console.log(`✅ Email de prueba enviado a ${email}`);
-        res.json({
-            success: true,
-            message: `Email de prueba enviado a ${email}`,
-            datosInscripcion
-        });
-    } catch (error) {
-        console.error('❌ Error enviando email de prueba:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error enviando email de prueba',
-            error: error.message,
-            datosInscripcion
-        });
-    }
-});
-// ENDPOINT TEMPORAL PARA RESET
-router.post('/reset-counters', async (req, res) => {
-    try {
-        const counterService = require('../services/counterService'); // ← AJUSTAR RUTA
-        
-        console.log('🔄 Reseteando contadores...');
-        await counterService.resetCounter('inscripciones', 'NRO');
-        
-        console.log('✅ Contadores reseteados exitosamente');
-        res.json({ 
-            success: true, 
-            message: 'Contadores reseteados a 0',
-            nextValue: 1
-        });
-        
-    } catch (error) {
-        console.error('❌ Error reseteando contadores:', error);
-        res.status(500).json({ 
-            success: false,
-            error: error.message 
-        });
-    }
-});
-
 
 module.exports = router;

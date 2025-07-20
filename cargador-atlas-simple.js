@@ -36,7 +36,7 @@ frecuenciaSchema.index({ frecuencia: 1 });  // Para búsquedas rápidas
 frecuenciaSchema.index({ grupo: 1 });       // Para búsquedas por grupo
 frecuenciaSchema.index({ activo: 1 });      // Para filtrar activos
 
-const Frecuencia = mongoose.model('Frecuencia', frecuenciaSchema);
+const Frecuencia = mongoose.model('frecuencias', frecuenciaSchema);
 
 async function limpiarIndicesYCargar() {
     console.log('🚀 Iniciando carga corregida...\n');

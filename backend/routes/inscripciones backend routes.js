@@ -327,10 +327,10 @@ router.get('/estadisticas/resumen', async (req, res) => {
 // 🌐 PÚBLICO: Endpoints para verificación por email
 // ===============================
 
-// ===============================
-// ENDPOINT: Enviar código de verificación (SOLO PÚBLICO)
-// ===============================
-router.post('/enviar-codigo', async (req, res) => {
+//// ===============================
+//// ENDPOINT: Enviar código de verificación (SOLO PÚBLICO)
+//// ===============================
+/*  router.post('/enviar-codigo', async (req, res) => {
     try {
         const { email, datosInscripcion } = req.body;
         
@@ -378,7 +378,8 @@ router.post('/enviar-codigo', async (req, res) => {
     }
 });
 
-// ===============================
+*/
+//===============================
 // ENDPOINT: Verificar código y guardar inscripción (SOLO PÚBLICO)
 // ===============================
 router.post('/verificar-codigo', async (req, res) => {
@@ -560,6 +561,7 @@ router.post('/verificar-codigo', async (req, res) => {
         });
     }
 });
+
 
 // ===============================
 // ENDPOINT: Obtener estadísticas (si no lo tienes ya)

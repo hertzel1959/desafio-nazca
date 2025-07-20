@@ -24,16 +24,17 @@ const inscripcionSchema = new mongoose.Schema({
     type: String,
     required: [true, 'El grupo es obligatorio'],
     trim: true,
-    validate: {
-      validator: async function(v) {
-        if (!v) return false;
-        const Frecuencia = mongoose.model('Frecuencia');
-        const frecuencia = await Frecuencia.findOne({ grupo: v });
-        return !!frecuencia;
-      },
-      message: 'El grupo especificado no existe en la tabla de frecuencias'
-    }
   },
+    //  validate: {
+    //  validator: async function(v) {
+    //    if (!v) return false;
+    //    const Frecuencia = mongoose.model('frecuencias');
+    //    const frecuencia = await Frecuencia.findOne({ grupo: v });
+    //    return !!frecuencia;
+    //  },
+     // message: 'El grupo especificado no existe en la tabla de frecuencias'
+  //  }
+  
   liderGrupo: {
     type: String,
     trim: true,
@@ -53,12 +54,33 @@ const inscripcionSchema = new mongoose.Schema({
     minlength: [2, 'Los apellidos deben tener al menos 2 caracteres'],
     maxlength: [50, 'Los apellidos no pueden exceder 50 caracteres']
   },
-  edad: {
-    type: Number,
-    required: [true, 'La edad es obligatoria'],
-    min: [16, 'Debe ser mayor de 16 años para participar'],
-    max: [80, 'Edad máxima permitida es 80 años']
-  },
+ //  edad: {
+ //    type: Number,
+ //    required: [true, 'La edad es obligatoria'],
+ //    min: [16, 'Debe ser mayor de 16 años para participar'],
+ //    max: [80, 'Edad máxima permitida es 80 años']
+ //  },
+
+ // ✅ CAMBIAR POR ESTO:
+edad: {
+    type: String,
+    required: false, // ← Hacer opcional o eliminar completamente
+    default: 'NO APLICA'
+},
+
+// ✅ AGREGAR ESTOS CAMPOS NUEVOS:
+deseaPolo: {
+    type: String,
+    required: [true, 'Debe especificar si desea polo'],
+    enum: ['SI', 'NO'],
+    uppercase: true
+},
+talla: {
+    type: String,
+    enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'NO APLICA'],
+    default: 'NO APLICA',
+    uppercase: true
+},
   experiencia: {
     type: String,
     required: [true, 'La experiencia es obligatoria'],
@@ -257,23 +279,79 @@ inscripcionSchema.methods.toAdminJSON = function() {
   return this.toPublicJSON();
 };
 
+
+//  inscripcionSchema.pre('save', async function(next) {
+//      try {
+//          if (this.isNew && !this.NRO) {
+//              const totalRegistros = await this.constructor.countDocuments();
+//              this.NRO = totalRegistros + 1;
+//          }
+//          next();
+//      } catch (error) {
+//          next(error);
+//      }
+//  });
 // ✅ MIDDLEWARE PRE-SAVE CON RECNUMBER
+inscripcionSchema.pre('save', async function(next) {
+    try {
+        // ✅ 1. GENERAR NRO
+        if (this.isNew && !this.NRO) {
+           // ✅ CAMBIAR POR:
+            const totalRegistros = await this.constructor.countDocuments();
+            this.NRO = (totalRegistros || 0) + 1;
+
+            console.log(`🔢 DEBUG - Total registros: ${totalRegistros}, NRO asignado: ${this.NRO}`);
+        }
+ 
+        // ✅ 2. ASIGNAR N_EQUIPO DEL GRUPO
+        if (this.grupo) {
+            try {
+                // Usar la colección directamente
+                const db = this.constructor.db;
+              //  const frecuencia = await db.collection('frecuencias').findOne({ grupo: this.grupo });
+                // ✅ POR (búsqueda insensible a mayúsculas):
+                const frecuencia = await db.collection('frecuencias').findOne({ 
+                    grupo: { $regex: new RegExp(`^${this.grupo}$`, 'i') }
+                });
+                
+                if (frecuencia) {
+                    this.N_equipo = frecuencia.NRO;
+                    this.frecuencia = frecuencia.frecuencia;
+                    this.frecuenciaGrupo = frecuencia.grupo;
+                    this.liderGrupo = frecuencia.contacto || '';
+                    
+                    console.log(`👥 N_equipo asignado: ${this.N_equipo} (grupo: ${this.grupo})`);
+                } else {
+                    console.warn(`⚠️ Grupo "${this.grupo}" no encontrado en frecuencias`);
+                }
+            } catch (error) {
+                console.error('❌ Error buscando grupo:', error);
+            }
+        }
+
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
+/*
 inscripcionSchema.pre('save', async function(next) {
     try {
         console.log(`🔄 Pre-save Inscripción - isNew: ${this.isNew}, NRO actual: ${this.NRO}`);
         
         // ✅ 1. GENERAR NRO BASADO EN REGISTROS ACTIVOS (RECNUMBER)
         if (this.isNew && !this.NRO) {
-            const totalActivos = await this.constructor.countDocuments({ activo: true });
-            this.NRO = totalActivos + 1;
-            console.log(`🔢 RECNUMBER - NRO asignado: ${this.NRO} (basado en ${totalActivos} registros activos)`);
+            // ✅ POR:
+            const totalRegistros = await this.constructor.countDocuments(); // Sin filtro
+            this.NRO = totalRegistros + 1;
+            console.log(`🔢 RECNUMBER - NRO asignado: ${this.NRO} (basado en ${totalRegistros} registros activos)`);
         }
 
         // ✅ 2. ASIGNAR N_EQUIPO BASADO EN EL GRUPO SELECCIONADO
         if (this.isModified('grupo') && this.grupo) {
             try {
-                const Frecuencia = mongoose.model('Frecuencia');
-                const frecuencia = await Frecuencia.findOne({ grupo: this.grupo });
+               // const Frecuencia = mongoose.model('Frequency'); // Usar el modelo del server.js
+               // const frecuencia = await Frecuencia.findOne({ grupo: this.grupo });
                 
                 if (frecuencia) {
                     this.N_equipo = frecuencia.NRO;
@@ -296,7 +374,7 @@ inscripcionSchema.pre('save', async function(next) {
         // ✅ 3. SI ES NUEVO Y NO SE MODIFICÓ EL GRUPO, PERO YA TIENE GRUPO
         if (this.isNew && !this.N_equipo && this.grupo) {
             try {
-                const Frecuencia = mongoose.model('Frecuencia');
+                const Frecuencia = mongoose.model('frecuencias');
                 const frecuencia = await Frecuencia.findOne({ grupo: this.grupo });
                 
                 if (frecuencia) {
@@ -329,7 +407,7 @@ inscripcionSchema.pre('save', async function(next) {
         next(error);
     }
 });
-
+*/
 
 // Middleware post-save para logging
 inscripcionSchema.post('save', function(doc) {

@@ -54,7 +54,7 @@ const frecuenciaSchema = new mongoose.Schema({
     timestamps: true 
 });
 
-const Frecuencia = mongoose.model('Frecuencia', frecuenciaSchema);
+const Frecuencia = mongoose.model('frecuencias', frecuenciaSchema);
 
 // Esquema para contador de IDs
 const counterSchema = new mongoose.Schema({
