@@ -2331,16 +2331,19 @@
                 .sort((a, b) => a.grupo.localeCompare(b.grupo))
                 .map(freq => ({
                     ...freq,
-                    grupo: freq.grupo.toUpperCase(),
+                    //grupo: freq.grupo.toUpperCase(),
+                    grupo: freq.grupo,
+                    grupoDisplay: freq.grupo.toUpperCase()
+
                     contacto: freq.contacto ? freq.contacto.toUpperCase() : ''
                 }));
             
             const gruposOptions = gruposOrdenados.map(freq => 
-                `<option value="${freq.grupo}" data-frecuencia="${freq.frecuencia}" data-lider="${freq.contacto || ''}">
-                    ${freq.grupo}
-                </option>`
-            ).join('');
-            
+    `<option value="${freq.grupo}" data-frecuencia="${freq.frecuencia}" data-lider="${freq.contacto || ''}">
+        ${freq.grupoDisplay}
+    </option>`
+).join('');
+
             const formContent = `
                 <button class="modal-close" onclick="hideAllForms()" title="Cerrar">×</button>
                 <h3 style="text-align: center; margin-bottom: 25px; color: #8b5a3c;">📝 Inscripción - Desafío Dunas de Nazca 2025</h3>
