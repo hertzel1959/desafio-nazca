@@ -1392,9 +1392,31 @@
                 gap: 15px;
             }
         }
+            .menu-button-section {
+            display: inline-block;
+            /*float: right;*/
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .menu-button-section:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        }
+
     </style>
 </head>
 <body>
+   
+ 
     <div class="main-container fade-in">
         <!-- Header -->
         <header class="header-bar">
@@ -1478,7 +1500,10 @@
         </section>
 
         <!-- Sección de Videos -->
+         
         <section class="videos-section" id="videosSection" style="display: none;">
+            <a class="menu-button-section" href="#top">📑 MENU</a>
+
             <h2>🎥 GALERÍA DE VIDEOS</h2>
             <p>Revive los mejores momentos del Desafío Dunas de Nazca</p>
             <div id="videosPublicos" class="videos-grid">
@@ -1487,7 +1512,10 @@
         </section>
 
         <!-- Sección de Organización -->
+
         <section class="organizacion-section" id="organizacionSection" style="display: none;">
+           <a class="menu-button-section" href="#top">📑 MENU</a>
+
             <h2>🏢 ORGANIZACIÓN DEL EVENTO</h2>
             <p>Conoce al equipo coordinador del Desafío Dunas de Nazca 2025</p>
             
@@ -1531,6 +1559,8 @@
         </section>
 <!-- Sección de Requisitos -->
 <section class="organizacion-section" id="requisitos">
+    <a class="menu-button-section" href="#top">📑 MENU</a>
+
     <h2>📋 REQUISITOS DE PARTICIPACIÓN</h2>
     <p style="text-align: center; margin-bottom: 30px;">Todos los participantes deben cumplir los siguientes requisitos para garantizar la seguridad y conservación del entorno:</p>
 
