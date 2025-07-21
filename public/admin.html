@@ -1060,12 +1060,14 @@ async function loadVideos() {
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #a0aec0;">No hay frecuencias registradas</td></tr>';
                 return;
             }
-            
+              // Ordenar alfabéticamente por grupo (mayúsculas para garantizar orden uniforme)
+            data.sort((a, b) => a.grupo.toUpperCase().localeCompare(b.grupo.toUpperCase()));
+
             tbody.innerHTML = data.map(f => `
                 <tr>
                     <td><strong>${f.id}</strong></td>
-                    <td>${f.grupo}</td>
-                    <td><strong>${f.frecuencia} MHz</strong></td>
+                    <td>${f.grupo.toUpperCase()}</td>
+                    <td><strong>${parseFloat(f.frecuencia).toFixed(3)} MHz</strong></td>
                     <td>${f.contacto || '-'}</td>
                     <td>${f.email || '-'}</td>
                     <td>${f.telefono || '-'}</td>
