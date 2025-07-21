@@ -527,88 +527,6 @@
             margin: 0 auto;
         }
 
-        /* Sección de Auspiciadores */
-        .auspiciadores-section {
-            padding: 50px 20px;
-            background: linear-gradient(135deg, #fff9e6 0%, #f0f8ff 100%);
-        }
-
-        .auspiciadores-section h2 {
-            text-align: center;
-            font-size: 2.5rem;
-            color: #8b5a3c;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .auspiciadores-section p {
-            text-align: center;
-            color: #666;
-            font-size: 1.1rem;
-            margin-bottom: 40px;
-        }
-
-        .auspiciadores-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            max-width: 1200px;
-            margin: 0 auto 40px auto;
-        }
-
-        .auspiciador-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            min-height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .auspiciador-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 16px 48px rgba(0,0,0,0.2);
-            border-color: #FFD700;
-        }
-
-        .auspiciador-logo {
-            width: 100%;
-            height: 180px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .auspiciador-logo img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            filter: drop-shadow(0 2px 10px rgba(0,0,0,0.1));
-            transition: all 0.3s ease;
-        }
-
-        .auspiciador-card:hover .auspiciador-logo img {
-            transform: scale(1.05);
-            filter: drop-shadow(0 4px 20px rgba(0,0,0,0.15));
-        }
-
-        .auspiciadores-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
         .info-box {
             background: rgba(255, 255, 255, 0.9);
             padding: 25px;
@@ -1473,25 +1391,6 @@
                 grid-template-columns: 1fr;
                 gap: 15px;
             }
-
-            .auspiciadores-grid {
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 20px;
-            }
-            
-            .auspiciador-card {
-                min-height: 150px;
-            }
-            
-            .auspiciador-logo {
-                height: 130px;
-                padding: 15px;
-            }
-            
-            .auspiciadores-info {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
         }
     </style>
 </head>
@@ -1507,7 +1406,6 @@
                     <li><a href="#cronograma">📅 Cronograma</a></li>
                     <li><a href="#requisitos">📋 Requisitos</a></li>
                     <li><a href="#" onclick="scrollToOrganizacion()">🏢 Organización</a></li>
-                    <li><a href="#" onclick="scrollToAuspiciadores()">🤝 Auspiciadores</a></li>
                     <li><button class="admin-access" id="adminButton">🔐 Admin</button></li>
                 </ul>
             </nav>
@@ -1631,50 +1529,45 @@
                 </div>
             </div>
         </section>
+<!-- Sección de Requisitos -->
+<section class="organizacion-section" id="requisitos">
+    <h2>📋 REQUISITOS DE PARTICIPACIÓN</h2>
+    <p style="text-align: center; margin-bottom: 30px;">Todos los participantes deben cumplir los siguientes requisitos para garantizar la seguridad y conservación del entorno:</p>
 
-        <!-- Sección de Auspiciadores -->
-        <section class="auspiciadores-section" id="auspiciadoresSection" style="display: none;">
-            <h2>🤝 AUSPICIADORES DEL EVENTO</h2>
-            <p>Agradecemos el apoyo de nuestros patrocinadores que hacen posible este desafío</p>
-            
-            <div class="auspiciadores-grid">
-                <div class="auspiciador-card">
-                    <div class="auspiciador-logo">
-                        <img src="images/aus1.jpg" alt="Auspiciador 1" loading="lazy">
-                    </div>
-                </div>
-                
-                <div class="auspiciador-card">
-                    <div class="auspiciador-logo">
-                        <img src="images/aus2.jpg" alt="Auspiciador 2" loading="lazy">
-                    </div>
-                </div>
-                
-                <div class="auspiciador-card">
-                    <div class="auspiciador-logo">
-                        <img src="images/aus3.jpg" alt="Auspiciador 3" loading="lazy">
-                    </div>
-                </div>
-                
-                <div class="auspiciador-card">
-                    <div class="auspiciador-logo">
-                        <img src="images/aus4.jpg" alt="Auspiciador 4" loading="lazy">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="auspiciadores-info">
-                <div class="info-box">
-                    <h4>🙏 Agradecimiento</h4>
-                    <p>El Desafío Dunas de Nazca 2025 es posible gracias al valioso apoyo de nuestros auspiciadores, quienes comparten nuestra pasión por la aventura y el deporte motorizado en el desierto peruano.</p>
-                </div>
-                
-                <div class="info-box">
-                    <h4>🤝 ¿Quieres ser patrocinador?</h4>
-                    <p>Si tu empresa está interesada en formar parte de este emocionante evento, contacta con nosotros para conocer las oportunidades de patrocinio disponibles.</p>
-                </div>
-            </div>
-        </section>
+    <div class="organizacion-info">
+        <div class="info-box">
+            <h4>🛡️ Experiencia del Grupo</h4>
+            <p>Solo se aceptarán grupos con reconocida experiencia y trayectoria en manejo sobre dunas.</p>
+        </div>
+
+        <div class="info-box">
+            <h4>🌐 Inscripción</h4>
+            <p>Las inscripciones se realizarán exclusivamente por los líderes de grupo a través del sitio web oficial: <strong>desafiodunasdenazca.com</strong>.</p>
+        </div>
+
+        <div class="info-box">
+            <h4>🚗 Vehículos</h4>
+            <p>Los vehículos y neumáticos deben estar en perfecto estado de funcionamiento y contar con autonomía de combustible para al menos <strong>300 km off-road</strong>. Si se transporta combustible, debe hacerse en galoneras adecuadas.</p>
+        </div>
+
+        <div class="info-box">
+            <h4>♻️ Conservación del Desierto</h4>
+            <p>Todos los grupos deberán velar por el cuidado y conservación del desierto y sus áreas naturales protegidas.</p>
+        </div>
+
+        <div class="info-box">
+            <h4>⛺ Equipamiento de Camping</h4>
+            <p>Es obligatorio contar con equipo de camping: carpa, sleeping, sillas, mesas, etc.</p>
+        </div>
+
+        <div class="info-box">
+            <h4>🥤 Provisiones y Residuos</h4>
+            <p>Los participantes deben llevar suficientes bebidas, hielo, alimentos, y <strong>bolsas para residuos</strong> personales.</p>
+        </div>
+    </div>
+</section>
+
+
 
         <!-- Navegación -->
         <nav class="nav-sections">
@@ -1684,7 +1577,6 @@
                 <a class="nav-section-item" href="#cronograma">📅 Cronograma</a>
                 <a class="nav-section-item" href="#requisitos">📋 Requisitos</a>
                 <a class="nav-section-item" href="#" onclick="scrollToOrganizacion()">🏢 Organización</a>
-                <a class="nav-section-item" href="#" onclick="scrollToAuspiciadores()">🤝 Auspiciadores</a>
             </div>
         </nav>
 
@@ -2248,100 +2140,6 @@
             }
         }
 
-        function scrollToAuspiciadores() {
-            console.log('🤝 Iniciando navegación a auspiciadores...');
-            
-            let auspiciadoresSection = document.getElementById('auspiciadoresSection');
-            console.log('📍 Sección de auspiciadores encontrada:', auspiciadoresSection ? 'SÍ' : 'NO');
-            
-            if (auspiciadoresSection) {
-                // Forzar visibilidad
-                auspiciadoresSection.style.display = 'block';
-                auspiciadoresSection.style.visibility = 'visible';
-                
-                console.log('👀 Sección hecha visible, iniciando scroll...');
-                
-                // Hacer scroll con timeout para asegurar que se renderice
-                setTimeout(() => {
-                    auspiciadoresSection.scrollIntoView({ 
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                    console.log('✅ Scroll ejecutado hacia auspiciadores');
-                }, 100);
-                
-            } else {
-                console.log('🔧 Sección no encontrada, creando dinámicamente...');
-                
-                // Crear sección dinámicamente
-                auspiciadoresSection = document.createElement('section');
-                auspiciadoresSection.id = 'auspiciadoresSection';
-                auspiciadoresSection.className = 'auspiciadores-section';
-                auspiciadoresSection.style.display = 'block';
-                auspiciadoresSection.innerHTML = `
-                    <h2>🤝 AUSPICIADORES DEL EVENTO</h2>
-                    <p>Agradecemos el apoyo de nuestros patrocinadores que hacen posible este desafío</p>
-                    
-                    <div class="auspiciadores-grid">
-                        <div class="auspiciador-card">
-                            <div class="auspiciador-logo">
-                                <img src="images/aus1.jpg" alt="Auspiciador 1" loading="lazy">
-                            </div>
-                        </div>
-                        
-                        <div class="auspiciador-card">
-                            <div class="auspiciador-logo">
-                                <img src="images/aus2.jpg" alt="Auspiciador 2" loading="lazy">
-                            </div>
-                        </div>
-                        
-                        <div class="auspiciador-card">
-                            <div class="auspiciador-logo">
-                                <img src="images/aus3.jpg" alt="Auspiciador 3" loading="lazy">
-                            </div>
-                        </div>
-                        
-                        <div class="auspiciador-card">
-                            <div class="auspiciador-logo">
-                                <img src="images/aus4.jpg" alt="Auspiciador 4" loading="lazy">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="auspiciadores-info">
-                        <div class="info-box">
-                            <h4>🙏 Agradecimiento</h4>
-                            <p>El Desafío Dunas de Nazca 2025 es posible gracias al valioso apoyo de nuestros auspiciadores, quienes comparten nuestra pasión por la aventura y el deporte motorizado en el desierto peruano.</p>
-                        </div>
-                        
-                        <div class="info-box">
-                            <h4>🤝 ¿Quieres ser patrocinador?</h4>
-                            <p>Si tu empresa está interesada en formar parte de este emocionante evento, contacta con nosotros para conocer las oportunidades de patrocinio disponibles.</p>
-                        </div>
-                    </div>
-                `;
-                
-                // Insertar antes del footer
-                const footer = document.querySelector('.footer-block');
-                if (footer) {
-                    footer.parentNode.insertBefore(auspiciadoresSection, footer);
-                } else {
-                    document.querySelector('.main-container').appendChild(auspiciadoresSection);
-                }
-                
-                console.log('✅ Sección de auspiciadores creada');
-                
-                // Hacer scroll después de crear
-                setTimeout(() => {
-                    auspiciadoresSection.scrollIntoView({ 
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                    console.log('✅ Scroll ejecutado hacia nueva sección');
-                }, 200);
-            }
-        }
-
         // ===============================
         // DISCLAIMER
         // ===============================
@@ -2871,6 +2669,18 @@
                         Revise su bandeja de entrada <strong>Y CARPETA DE SPAM</strong> y digite el código de 6 dígitos para confirmar su inscripción.
                     </p>
                     
+                    <!-- MODO DEBUG - MOSTRAR CÓDIGO TEMPORALMENTE -->
+                  <!--  
+                    <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                        <h4 style="color: #856404; margin: 0 0 10px 0;">🔧 MODO DEBUG - EMAIL NO LLEGANDO</h4>
+                        <p style="color: #856404; font-size: 14px; margin: 5px 0;">Mientras arreglamos el email, use este código temporal:</p>
+                        <div style="background: #000; color: #0f0; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 28px; font-weight: bold; letter-spacing: 5px; margin: 10px 0; cursor: pointer;" onclick="document.getElementById('codigoInput').value = '${codigoTemporal}'; document.getElementById('codigoInput').focus();">
+                            ${codigoTemporal}
+                        </div>
+                        <small style="color: #856404;">💡 <strong>Haz clic en el código</strong> para copiarlo automáticamente al campo</small><br>
+                        <small style="color: #856404;">⚠️ Este código se eliminará cuando el email funcione correctamente</small>
+                    </div>
+                   --> 
                     <form onsubmit="verificarCodigo(event)" style="max-width: 300px; margin: 0 auto;">
                         <div style="margin-bottom: 20px;">
                             <label style="display: block; margin-bottom: 8px; font-weight: 600;">Código de Verificación:</label>
@@ -2891,7 +2701,7 @@
                     </div>
                     
                     <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 6px; font-size: 12px; color: #666;">
-                        💡 <strong>Tips:</strong> Revisa SPAM, agrega desafiodunasdenazcal@gmail.com a contactos, o usa el código temporal arriba. ${codigoTemporal}
+                        💡 <strong>Tips:</strong> Revisa SPAM, agrega desafiodunasdenazcal@gmail.com a contactos, o usa el código temporal arriba.
                     </div>
                 </div>
             `;
