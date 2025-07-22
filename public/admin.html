@@ -1371,7 +1371,8 @@ async function loadVideos() {
             // Generar opciones de grupos para el select
             const gruposOptions = frecuenciasData.map(freq => 
                 `<option value="${freq.grupo}" data-frecuencia="${freq.frecuencia}" data-lider="${freq.contacto || ''}" 
-                         ${inscripcion?.grupo === freq.grupo ? 'selected' : ''}>
+                         ${inscripcion && inscripcion.grupo &&
+                         inscripcion.grupo.toUpperCase() === freq.grupo.toUpperCase() ? 'selected' : ''}>
                     ${freq.grupo}
                 </option>`
             ).join('');
