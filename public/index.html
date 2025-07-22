@@ -2612,53 +2612,41 @@
         }
 
         async function saveInscripcion(event) {
-            event.preventDefault();
-            
+            event.preventDefault();            
             const submitBtn = event.target.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Guardando...';
-            
+            submitBtn.textContent = 'Guardando...';            
             try {
                 const formData = new FormData(event.target);
-                const data = Object.fromEntries(formData.entries());
-                
+                const data = Object.fromEntries(formData.entries());                
                 // Convertir campos específicos a mayúsculas
                 data.nombres = data.nombres.toUpperCase();
                 data.apellidos = data.apellidos.toUpperCase();
                 data.personaContacto = data.personaContacto.toUpperCase();
                 data.grupo = data.grupo.toUpperCase();
-                if (data.contacto) data.contacto = data.contacto.toUpperCase();
-                
+                if (data.contacto) data.contacto = data.contacto.toUpperCase();                
                 // Asegurar que el estado siempre sea CONFIRMADO
-                data.estado = 'CONFIRMADO';
-                
+                data.estado = 'CONFIRMADO';                
                 // Manejar la talla según si desea polo o no
                 if (data.deseaPolo === 'NO') {
                     data.talla = 'NO APLICA'; // Guardar dato cuando no quiere polo
                 } else if (data.deseaPolo === 'SI' && data.talla) {
                     data.talla = data.talla.toUpperCase(); // Asegurar mayúsculas si sí quiere
-                }
-                
-                if (!data.observaciones) delete data.observaciones;
-                
-                console.log('📝 Datos del formulario:', data);
-                
+                }                
+                if (!data.observaciones) delete data.observaciones;                
+                console.log('📝 Datos del formulario:', data);                
                 if (!data.grupo || !data.nombres || !data.apellidos || !data.email || !data.deseaPolo) {
                     showMessage('Por favor complete todos los campos obligatorios', 'error');
                     return;
-                }
-                
+                }                
                 // Validar talla solo si desea polo
                 if (data.deseaPolo === 'SI' && !data.talla) {
                     showMessage('Por favor seleccione una talla para el polo', 'error');
                     return;
-                }
-                
-                inscripcionTemporal = data;
-                
-                console.log('📤 Enviando código de verificación...');
-                
+                }                
+                inscripcionTemporal = data;                
+                console.log('📤 Enviando código de verificación...');                
                 const response = await fetch('/api/inscripciones', {
                 method: 'POST',
                 headers: { 
@@ -2666,11 +2654,8 @@
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify(data)
-                });
-
-                
-                console.log('📨 Respuesta envío código:', response.status, response.statusText);
-                
+                });                
+                console.log('📨 Respuesta envío código:', response.status, response.statusText);                
                 if (!response.ok) {
                     let errorMessage = 'Error enviando código de verificación';
                     try {
@@ -2686,7 +2671,11 @@
                 console.log('✅ Código enviado exitosamente:', result);
                 
                 hideAllForms();
-                showSuccessModal(result.data);
+                //showSuccessModal(result.data);
+                console.log('📦 Inscripción recibida del backend:', result);
+                showSuccessModal(result.data ?? result);
+
+                // showSuccessModal(result.data || result);
 
                 
             } catch (error) {
@@ -2939,12 +2928,19 @@
         function showSuccessModal(inscripcionData) {
             // Determinar el texto para mostrar sobre el polo
             let poloInfo = '';
-            if (inscripcionData.deseaPolo === 'SI') {
-                poloInfo = `<strong>👕 Polo:</strong> SÍ - Talla ${inscripcionData.talla}<br>`;
-            } else {
-                poloInfo = `<strong>👕 Polo:</strong> NO solicitado<br>`;
-            }
-            
+                        const deseaPolo = (inscripcionData.deseaPolo || '').toString().trim().toUpperCase();
+                        const talla = (inscripcionData.talla || '').toString().trim().toUpperCase();
+
+                        console.log('🧪 deseaPolo:', deseaPolo);
+                        console.log('🧪 talla:', talla);
+
+                        if (deseaPolo === 'SI') {
+                            poloInfo = `<strong>👕 Polo:</strong> SÍ - Talla ${talla || 'NO DEFINIDA'}<br>`;
+                        } else {
+                            poloInfo = `<strong>👕 Polo:</strong> NO solicitado<br>`;
+                        }
+
+
             // Asegurar que siempre muestre CONFIRMADO
             const estado = inscripcionData.estado || 'CONFIRMADO';
             

@@ -25,16 +25,7 @@ const inscripcionSchema = new mongoose.Schema({
     required: [true, 'El grupo es obligatorio'],
     trim: true,
   },
-    //  validate: {
-    //  validator: async function(v) {
-    //    if (!v) return false;
-    //    const Frecuencia = mongoose.model('frecuencias');
-    //    const frecuencia = await Frecuencia.findOne({ grupo: v });
-    //    return !!frecuencia;
-    //  },
-     // message: 'El grupo especificado no existe en la tabla de frecuencias'
-  //  }
-  
+    
   liderGrupo: {
     type: String,
     trim: true,
@@ -273,7 +264,10 @@ inscripcionSchema.methods.toPublicJSON = function() {
     fechaInscripcion: this.fechaInscripcion,
     activo: this.activo,
     createdAt: this.createdAt,
-    updatedAt: this.updatedAt
+    updatedAt: this.updatedAt,
+    deseaPolo: this.deseaPolo,
+    talla: this.talla,
+
   };
 };
 
