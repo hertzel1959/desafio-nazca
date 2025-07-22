@@ -221,9 +221,10 @@ talla: {
 });
 
 // Índices para optimizar consultas (SIN DUPLICADOS)
+inscripcionSchema.index({ NRO: 1 }, { unique: true });
+/*
 inscripcionSchema.index({ email: 1 }, { unique: true });
 inscripcionSchema.index({ dni: 1 }, { unique: true });
-inscripcionSchema.index({ NRO: 1 }, { unique: true });
 inscripcionSchema.index({ N_equipo: 1 });
 inscripcionSchema.index({ tripulante: 1 });
 inscripcionSchema.index({ grupo: 1 });
@@ -237,6 +238,8 @@ inscripcionSchema.index(
   { N_equipo: 1, tripulante: 1 }, 
   { unique: true, partialFilterExpression: { activo: true } }
 );
+*/
+
 // Método para obtener datos públicos
 inscripcionSchema.methods.toPublicJSON = function() {
   return {

@@ -2539,7 +2539,7 @@
                     
                     <div class="form-buttons">
                         <button type="button" class="btn btn-danger" onclick="hideAllForms()">Cancelar</button>
-                        <button type="submit" class="btn btn-success" style="font-size: 16px; padding: 12px 24px;">📧 Enviar Código de Verificación</button>
+                        <button type="submit" class="btn btn-success" style="font-size: 16px; padding: 12px 24px;">💾 Guardar Inscripción</button>
                     </div>
                 </form>
             `;
@@ -2617,7 +2617,7 @@
             const submitBtn = event.target.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Procesando...';
+            submitBtn.textContent = 'Guardando...';
             
             try {
                 const formData = new FormData(event.target);
@@ -2659,17 +2659,15 @@
                 
                 console.log('📤 Enviando código de verificación...');
                 
-                const response = await fetch('/api/inscripciones/enviar-codigo', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: data.email,
-                        datosInscripcion: data
-                    })
+                const response = await fetch('/api/inscripciones', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(data)
                 });
+
                 
                 console.log('📨 Respuesta envío código:', response.status, response.statusText);
                 
@@ -2687,14 +2685,9 @@
                 const result = await response.json();
                 console.log('✅ Código enviado exitosamente:', result);
                 
-                if (result.success !== false) {
-                    hideAllForms();
-                    setTimeout(() => {
-                        showCodigoVerificacionModal(data.email, result.debug?.codigo);
-                    }, 1000);
-                } else {
-                    throw new Error(result.message || 'Error enviando código');
-                }
+                hideAllForms();
+                showSuccessModal(result.data);
+
                 
             } catch (error) {
                 console.error('❌ Error en saveInscripcion:', error);
