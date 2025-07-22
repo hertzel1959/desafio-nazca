@@ -292,8 +292,8 @@ const updateInscripcion = async (req, res) => {
     
     // Actualizar campos permitidos (no permitir cambiar NRO ni N_equipo directamente)
     const allowedFields = [
-      'tripulante', 'grupo', 'nombres', 'apellidos', 'edad', 'experiencia',
-      'grupoSanguineo', 'dni', 'email', 'celular', 'personaContacto', 
+      'tripulante', 'grupo', 'nombres', 'apellidos',  'experiencia',
+      'grupoSanguineo', 'dni', 'email', 'celular', 'personaContacto', 'deseaPolo', 'talla',
       'celularContacto', 'tipoVehiculo', 'marca', 'modelo', 'año',
       'diaLlegada', 'estado', 'observaciones', 'activo'
     ];
