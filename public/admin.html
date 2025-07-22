@@ -1232,11 +1232,17 @@ async function loadVideos() {
                             <span class="badge badge-secondary" style="font-size: 13px; font-weight: 700;">
                                 ${i.N_equipo}
                             </span>
-                            <button class="btn btn-sm" onclick="verEquipo(${i.N_equipo})" 
+                            <!--button class="btn btn-sm" onclick="verEquipo(${i.N_equipo})" 
                                     title="Ver equipo completo" 
                                     style="padding: 2px 6px; font-size: 10px; background: #f0f9ff; border: 1px solid #3182ce; color: #3182ce;">
                                 👥 Ver
+                            </button>-->
+                            <button class="btn btn-sm"
+                                    title="Ver ficha del participante"
+                                    onclick="verParticipante(${i.NRO || i.id})">
+                                📄 Ver
                             </button>
+
                         </div>
                     </td>
                     
@@ -1849,20 +1855,63 @@ async function saveInscripcion(event) {
                 showMessage('❌ Error de conexión: ' + error.message, 'error');
             }
         }
+        async function verParticipante(id) {
+    try {
+        // 1️⃣  Busca los datos ya cargados en memoria
+        let p = inscripcionesData.find(i => (i.NRO || i.id) === id);
+
+        // 2️⃣  Si no está, pídelo al servidor
+        if (!p) {
+            const res = await fetch(`/api/inscripciones/${id}`);
+            if (!res.ok) throw new Error('Participante no encontrado');
+            p = (await res.json()).data;
+        }
+
+        // 3️⃣  Construye la ficha
+        const ficha = `
+            <div style="text-align:center;padding:20px;">
+                <h3 style="color:#8b5a3c;margin-bottom:20px;">
+                    👤 Ficha del participante #${p.NRO || id}
+                </h3>
+
+                <div style="display:grid;gap:12px;text-align:left;max-width:500px;margin:0 auto;">
+                    <div><strong>Nombre:</strong> ${p.nombreCompleto || p.nombres + ' ' + p.apellidos}</div>
+                    <div><strong>Tripulante:</strong> ${p.tripulante}</div>
+                    <div><strong>Grupo:</strong> ${p.grupo || '-'} (${p.frecuencia || '–'} MHz)</div>
+                    <div><strong>Edad:</strong> ${p.edad} años</div>
+                    <div><strong>Experiencia:</strong> ${p.experiencia}</div>
+                    <div><strong>DNI:</strong>  ${p.dni ? p.dni.substring(0,4)+'****' : 'N/A'}</div>
+                    <div><strong>Grupo Sanguineo:</strong> ${p.grupoSanguineo.toUpperCase()}</div>
+                    <div><strong>Email:</strong> ${p.email}</div>
+                    <div><strong>Celular:</strong> ${p.celular}</div>
+                    <div><strong>Polo:</strong> 👕 ${p.deseaPolo ? 'SI' : 'NO'} | 📏 ${(p.talla ?? '-').toUpperCase()}</div>                    
+                    <div><strong>Vehículo:</strong> ${p.vehiculoCompleto || ((p.marca||'') + ' ' + (p.modelo||''))}</div>
+                    <div><strong>Llegada:</strong> ${p.diaLlegada || '–'}</div>
+                    <div><strong>Estado:</strong> ${p.estado}</div>
+                </div>
+
+                <div style="margin-top:25px;">
+                    <button class="btn btn-success" onclick="hideAllForms()">✅ Cerrar</button>
+                </div>
+            </div>`;
+        
+        showFormModal(ficha);   // Reutiliza tu modal genérico
+    } catch (err) {
+        console.error('❌ Error cargando participante:', err);
+        showMessage('❌ Error cargando participante: ' + err.message, 'error');
+    }
+}
 
         // Función mejorada para ver equipo completo
         async function verEquipo(N_equipo) {
             try {
                 const response = await fetch(`/api/inscripciones/equipo/${N_equipo}`);
-                const result = await response.json();
-                
+                const result = await response.json();                
                 if (response.ok) {
-                    const equipo = result.data;
-                    
+                    const equipo = result.data;                    
                     const equipoInfo = `
                         <div style="text-align: center; padding: 20px;">
-                            <h3 style="color: #8b5a3c; margin-bottom: 20px;">👥 Particiapnte ${inscripcion.NRO}</h3>
-                            
+                            <h3 style="color: #8b5a3c; margin-bottom: 20px;">👥 Participante ${N_equipo}</h3>                         
                             <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 25px; text-align: left;">
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                                     <div><strong>📻 Grupo:</strong> ${equipo.grupo}</div>
@@ -1870,8 +1919,7 @@ async function saveInscripcion(event) {
                                     <div><strong>👨‍✈️ Líder:</strong> ${equipo.liderGrupo}</div>
                                     <div><strong>👥 Nº Grupo:</strong> ${N_equipo}</div>
                                 </div>
-                            </div>
-                            
+                            </div>                            
                             <div style="display: grid; gap: 15px; text-align: left;">
                                 ${equipo.miembros.map(m => `
                                     <div style="border: 2px solid #e2e8f0; padding: 20px; border-radius: 12px; ${m.tripulante === 'piloto' ? 'border-color: #8b5a3c; background: #fefcf3;' : ''}">
@@ -1880,23 +1928,20 @@ async function saveInscripcion(event) {
                                             <span class="badge ${getEstadoBadgeClass(m.estado)}" style="font-size: 12px;">
                                                 ${getEstadoIcon(m.estado)} ${m.estado}
                                             </span>
-                                        </div>
-                                        
+                                        </div>                                        
                                         <div style="margin-bottom: 10px;">
                                             <strong style="font-size: 1.1rem; color: #2d3748;">${m.nombreCompleto}</strong>
                                             <span style="font-size: 12px; color: #718096; margin-left: 10px;">
                                                 🎂 ${m.edad} años | 🏆 ${m.experiencia} | 🩸 ${m.grupoSanguineo}
                                             </span>
-                                        </div>
-                                        
+                                        </div>                                        
                                         <div style="font-size: 13px; color: #4a5568; line-height: 1.4;">
                                             📧 ${m.email} | 📱 ${m.celular}<br>
                                             🚗 ${m.vehiculoCompleto} | 📅 Llega: ${m.diaLlegada}
                                         </div>
                                     </div>
                                 `).join('')}
-                            </div>
-                            
+                            </div>                            
                             <div style="margin-top: 25px;">
                                 <button class="btn btn-primary" onclick="hideAllForms()" style="padding: 12px 24px;">
                                     ✅ Cerrar
