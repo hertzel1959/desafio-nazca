@@ -35,7 +35,7 @@ const getAllInscripciones = async (req, res) => {
     }
     
     // Configurar paginación
-    const limitNum = parseInt(limit) || 50; // Default 50
+    const limitNum = parseInt(limit) || 9999; // Default 50
     const pageNum = parseInt(page) || 1;
     const skip = (pageNum - 1) * limitNum;
     
